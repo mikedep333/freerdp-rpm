@@ -1,6 +1,6 @@
 Name:           freerdp
-Version:        0.8.1
-Release:        2%{?dist}
+Version:        0.8.2
+Release:        1%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
@@ -113,6 +113,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Nov 16 2010 Mads Kiilerich <mads@kiilerich.com> - 0.8.2-1
+- freerdp-0.8.2
+
 * Mon Nov 08 2010 Mads Kiilerich <mads@kiilerich.com> - 0.8.1-2
 - make -devel require pkgconfig
 - first official Fedora package
