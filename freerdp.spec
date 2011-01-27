@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        0.8.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
@@ -113,6 +113,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jan 28 2011 Mads Kiilerich <mads@kiilerich.com> - 0.8.2-2
+- rebuild on rawhide because of broken dependencies
+
 * Tue Nov 16 2010 Mads Kiilerich <mads@kiilerich.com> - 0.8.2-1
 - freerdp-0.8.2
 
