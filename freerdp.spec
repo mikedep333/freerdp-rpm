@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        0.8.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
@@ -113,6 +113,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.8.2-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Fri Jan 28 2011 Mads Kiilerich <mads@kiilerich.com> - 0.8.2-2
 - rebuild on rawhide because of broken dependencies
 
