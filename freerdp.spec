@@ -1,53 +1,57 @@
 Name:           freerdp
-Version:        0.8.2
-Release:        4%{?dist}
+Version:        1.0.1
+Release:        1%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
-License:        GPLv2+
+License:        ASL 2.0
 URL:            http://www.freerdp.com/
-Source0:        http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
+Source0:        https://github.com/downloads/FreeRDP/FreeRDP/FreeRDP-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  alsa-lib-devel
-BuildRequires:  cups-devel
+BuildRequires:  cmake
 BuildRequires:  openssl-devel
 BuildRequires:  libX11-devel
+BuildRequires:  libXext-devel
+BuildRequires:  libXinerama-devel
 BuildRequires:  libXcursor-devel
+BuildRequires:  libXdamage-devel
+BuildRequires:  libXv-devel
+BuildRequires:  libxkbfile-devel
+BuildRequires:  pulseaudio-libs-devel
+BuildRequires:  cups-devel
+BuildRequires:  pcsc-lite-devel
 
 Provides:       xfreerdp = %{version}-%{release}
 Requires:       %{name}-libs = %{version}-%{release}, %{name}-plugins = %{version}-%{release}
 
-%description 
+%description
 The xfreerdp Remote Desktop Protocol (RDP) client from the FreeRDP
 project.
 
 xfreerdp can connect to RDP servers such as Microsoft Windows
 machines, xrdp and VirtualBox.
 
-FreeRDP is a fork of the rdesktop project and intends to rapidly
-improve on it and re-implement what is needed.
-
 
 %package        libs
 Summary:        Core libraries implementing the RDP protocol
-Group:          System Environment/Libraries
+Group:          Applications/Communications
 %description    libs
-libfreerdp implements the core of the RDP protocol.
+libfreerdp-core can be embedded in applications.
 
-libfreerdpchanman can be used to load plugins that can handle channels
-in the RDP protocol.
+libfreerdp-channels and libfreerdp-kbd might be convenient to use in X
+applications together with libfreerdp-core.
 
-libfreerdpkbd implements functionality for handling keyboards in X.
+libfreerdp-core can be extended with plugins handling RDP channels.
 
 
 %package        plugins
 Summary:        Plugins for handling the standard RDP channels
-Group:          System Environment/Libraries
+Group:          Applications/Communications
 Requires:       %{name}-libs = %{version}-%{release}
 %description    plugins
 A set of plugins to the channel manager implementing the standard virtual
-channels extending RDP core functionality.  For example, sounds, clipboard
+channels extending RDP core functionality. For instance, sounds, clipboard
 sync, disk/printer redirection, etc.
 
 
@@ -63,20 +67,37 @@ developing applications that use %{name}-libs.
 
 
 %prep
-%setup -q
+%setup -q -n FreeRDP-FreeRDP-8e62721
 
 
 %build
-%configure --disable-static --with-sound=alsa --with-crypto=openssl
-sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
-sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+%cmake \
+        -DWITH_CUPS=ON \
+        -DWITH_PCSC=ON \
+        -DWITH_PULSEAUDIO=ON \
+        -DWITH_X11=ON \
+        -DWITH_XCURSOR=ON \
+        -DWITH_XEXT=ON \
+        -DWITH_XINERAMA=ON \
+        -DWITH_XKBFILE=ON \
+        -DWITH_XV=ON \
+        -DWITH_ALSA=OFF \
+        -DWITH_CUNIT=OFF \
+        -DWITH_DIRECTFB=OFF \
+        -DWITH_FFMPEG=OFF \
+        -DWITH_SSE2=OFF \
+        -DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \
+        .
+
+
 make %{?_smp_mflags}
 
 
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL='install -p'
-find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
+# No need for keymap files when using xkbfile
+rm -rf $RPM_BUILD_ROOT/usr/share/freerdp
 
 
 %clean
@@ -92,27 +113,29 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %{_bindir}/xfreerdp
-%{_mandir}/*/*
+%{_mandir}/man1/xfreerdp.*
 
 %files libs
 %defattr(-,root,root,-)
-%doc COPYING AUTHORS doc/ipv6.txt ChangeLog
-%{_libdir}/*.so.*
+%doc LICENSE README ChangeLog
+%{_libdir}/lib%{name}-*.so.*
 %dir %{_libdir}/%{name}/
-%{_datadir}/%{name}/
 
 %files plugins
 %defattr(-,root,root,-)
-%{_libdir}/%{name}/*.so
+%{_libdir}/%{name}/*
 
 %files devel
 %defattr(-,root,root,-)
-%{_includedir}/*
-%{_libdir}/*.so
+%{_includedir}/%{name}/
+%{_libdir}/lib%{name}-*.so
 %{_libdir}/pkgconfig/%{name}.pc
 
 
 %changelog
+* Wed Feb 22 2012 Mads Kiilerich <mads@kiilerich.com> - 1.0.1-1
+- FreeRDP-1.0.1 - major upstream rewrite and relicensing under Apache license
+
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.8.2-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
