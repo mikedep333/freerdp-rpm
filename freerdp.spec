@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.0.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
@@ -10,6 +10,7 @@ Source0:        https://github.com/downloads/FreeRDP/FreeRDP/FreeRDP-%{version}.
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  cmake
+BuildRequires:  xmlto
 BuildRequires:  openssl-devel
 BuildRequires:  libX11-devel
 BuildRequires:  libXext-devel
@@ -133,6 +134,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat Feb 25 2012 Mads Kiilerich <mads@kiilerich.com> - 1.0.1-2
+- Explicit build requirement for xmlto - needed for EL6
+
 * Wed Feb 22 2012 Mads Kiilerich <mads@kiilerich.com> - 1.0.1-1
 - FreeRDP-1.0.1 - major upstream rewrite and relicensing under Apache license
 
