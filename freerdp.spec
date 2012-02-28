@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.0.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
@@ -22,6 +22,7 @@ BuildRequires:  libxkbfile-devel
 BuildRequires:  pulseaudio-libs-devel
 BuildRequires:  cups-devel
 BuildRequires:  pcsc-lite-devel
+BuildRequires:  desktop-file-utils
 
 Provides:       xfreerdp = %{version}-%{release}
 Requires:       %{name}-libs = %{version}-%{release}, %{name}-plugins = %{version}-%{release}
@@ -70,8 +71,21 @@ developing applications that use %{name}-libs.
 %prep
 %setup -q -n FreeRDP-FreeRDP-8e62721
 
+cat << EOF > xfreerdp.desktop 
+[Desktop Entry]
+Type=Application
+Name=X FreeRDP
+NoDisplay=true
+Comment=Connect to RDP server and display remote desktop
+Icon=%{name}
+Exec=/usr/bin/xfreerdp
+Terminal=false
+Categories=Network;RemoteAccess;
+EOF
+
 
 %build
+
 %cmake \
         -DWITH_CUPS=ON \
         -DWITH_PCSC=ON \
@@ -90,19 +104,28 @@ developing applications that use %{name}-libs.
         -DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \
         .
 
-
 make %{?_smp_mflags}
 
 
 %install
 rm -rf $RPM_BUILD_ROOT
+
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL='install -p'
+
 # No need for keymap files when using xkbfile
 rm -rf $RPM_BUILD_ROOT/usr/share/freerdp
+
+desktop-file-install --dir=$RPM_BUILD_ROOT%{_datadir}/applications xfreerdp.desktop
+install -p -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
 
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+
+%post
+# This is no gtk application, but try to integrate nicely with GNOME if it is available
+gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %post libs -p /sbin/ldconfig
@@ -115,6 +138,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %{_bindir}/xfreerdp
 %{_mandir}/man1/xfreerdp.*
+%{_datadir}/applications/xfreerdp.desktop
+%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
 
 %files libs
 %defattr(-,root,root,-)
@@ -134,6 +159,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb 28 2012 Mads Kiilerich <mads@kiilerich.com> - 1.0.1-3
+- Install a freedesktop .desktop file and a high-res icon instead of relying on
+  _NET_WM_ICON
+
 * Sat Feb 25 2012 Mads Kiilerich <mads@kiilerich.com> - 1.0.1-2
 - Explicit build requirement for xmlto - needed for EL6
 
