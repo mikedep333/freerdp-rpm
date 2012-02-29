@@ -1,12 +1,14 @@
 Name:           freerdp
 Version:        1.0.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
 Source0:        https://github.com/downloads/FreeRDP/FreeRDP/FreeRDP-%{version}.tar.gz
+# https://github.com/FreeRDP/FreeRDP/commit/165d39a290a109c0af16a1d223d1426cb524a844 backport
+Patch0:         fastpath_send_input_pdu-sec_bytes.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  cmake
@@ -70,6 +72,7 @@ developing applications that use %{name}-libs.
 
 %prep
 %setup -q -n FreeRDP-FreeRDP-8e62721
+%patch0 -p1
 
 cat << EOF > xfreerdp.desktop 
 [Desktop Entry]
@@ -159,6 +162,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Tue Feb 28 2012 Mads Kiilerich <mads@kiilerich.com> - 1.0.1-4
+- Include patch for sending invalid extra data
+
 * Tue Feb 28 2012 Mads Kiilerich <mads@kiilerich.com> - 1.0.1-3
 - Install a freedesktop .desktop file and a high-res icon instead of relying on
   _NET_WM_ICON
