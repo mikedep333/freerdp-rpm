@@ -1,12 +1,12 @@
 Name:           freerdp
 Version:        1.0.1
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
-Source0:        https://github.com/downloads/FreeRDP/FreeRDP/FreeRDP-%{version}.tar.gz
+Source0:        https://github.com/downloads/FreeRDP/FreeRDP/%{name}-%{version}.tar.gz
 # https://github.com/FreeRDP/FreeRDP/commit/165d39a290a109c0af16a1d223d1426cb524a844 backport
 Patch0:         fastpath_send_input_pdu-sec_bytes.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -27,7 +27,8 @@ BuildRequires:  pcsc-lite-devel
 BuildRequires:  desktop-file-utils
 
 Provides:       xfreerdp = %{version}-%{release}
-Requires:       %{name}-libs = %{version}-%{release}, %{name}-plugins = %{version}-%{release}
+Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
+Requires:       %{name}-plugins%{?_isa} = %{version}-%{release}
 
 %description
 The xfreerdp Remote Desktop Protocol (RDP) client from the FreeRDP
@@ -52,7 +53,7 @@ libfreerdp-core can be extended with plugins handling RDP channels.
 %package        plugins
 Summary:        Plugins for handling the standard RDP channels
 Group:          Applications/Communications
-Requires:       %{name}-libs = %{version}-%{release}
+Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
 %description    plugins
 A set of plugins to the channel manager implementing the standard virtual
 channels extending RDP core functionality. For instance, sounds, clipboard
@@ -62,7 +63,7 @@ sync, disk/printer redirection, etc.
 %package        devel
 Summary:        Development files for %{name}
 Group:          Development/Libraries
-Requires:       %{name}-libs = %{version}-%{release}
+Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
 Requires:       pkgconfig
 
 %description    devel
@@ -71,7 +72,8 @@ developing applications that use %{name}-libs.
 
 
 %prep
-%setup -q -n FreeRDP-FreeRDP-8e62721
+
+%setup -q
 %patch0 -p1
 
 cat << EOF > xfreerdp.desktop 
@@ -162,6 +164,10 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Wed Feb 29 2012 Mads Kiilerich <mads@kiilerich.com> - 1.0.1-5
+- Use new upstream tar with standard naming
+- Use _isa for subpackage dependencies
+
 * Tue Feb 28 2012 Mads Kiilerich <mads@kiilerich.com> - 1.0.1-4
 - Include patch for sending invalid extra data
 
