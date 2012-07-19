@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.0.1
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
@@ -164,6 +164,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.1-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Wed Feb 29 2012 Mads Kiilerich <mads@kiilerich.com> - 1.0.1-5
 - Use new upstream tar with standard naming
 - Use _isa for subpackage dependencies
