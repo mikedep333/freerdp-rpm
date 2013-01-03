@@ -1,15 +1,12 @@
 Name:           freerdp
-Version:        1.0.1
-Release:        7%{?dist}
+Version:        1.0.2
+Release:        1%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
-Source0:        https://github.com/downloads/FreeRDP/FreeRDP/%{name}-%{version}.tar.gz
-# https://github.com/FreeRDP/FreeRDP/commit/165d39a290a109c0af16a1d223d1426cb524a844 backport
-Patch0:         fastpath_send_input_pdu-sec_bytes.patch
-Patch1:         c10866db66c0d462ea7c2c38bb01740bcfb4fcb4.patch
+Source0:        http://pub.freerdp.com/releases/%{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  cmake
@@ -75,8 +72,6 @@ developing applications that use %{name}-libs.
 %prep
 
 %setup -q
-%patch0 -p1
-%patch1 -p1
 
 cat << EOF > xfreerdp.desktop 
 [Desktop Entry]
@@ -166,6 +161,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Wed Jan 02 2013 Mads Kiilerich <mads@kiilerich.com> - 1.0.2-1
+- freerdp-1.0.2
+
 * Sun Sep 30 2012 Mads Kiilerich <mads@kiilerich.com> - 1.0.1-7
 - merge f17 1.0.1-6 - Backport fix for bug 816692
 
