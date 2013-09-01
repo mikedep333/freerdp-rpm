@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.beta1%{?dist}
+Release:        0.1.beta1%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
@@ -104,6 +104,18 @@ EOF
         -DWITH_DIRECTFB=OFF \
         -DWITH_FFMPEG=OFF \
         -DWITH_SSE2=OFF \
+%ifarch armv7hl
+        -DARM_FP_ABI=hard \
+        -DWITH_NEON=OFF \
+%endif
+%ifarch armv7hnl
+        -DARM_FP_ABI=hard \
+        -DWITH_NEON=ON \
+%endif
+%ifarch armv5tel armv6l armv7l
+        -DARM_FP_ABI=soft \
+        -DWITH_NEON=OFF \
+%endif
         -DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \
         .
 
@@ -153,6 +165,10 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Sun Sep 01 2013 Dennis Gilmore <dennis@ausil.us> - 1.1.0-0.1.beta1
+- disable neon on armv7hl and armv5tel
+- set arm floating point correctly for the different targets
+
 * Sun Sep 01 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.beta+2013071101
 - Update to 1.1.0 beta1, add winpr package, drop plugins package.
 - Drop unnecessary rm -rf of build roots.
