@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.0.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
@@ -118,7 +118,7 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL='install -p'
 rm -rf $RPM_BUILD_ROOT/usr/share/freerdp
 
 desktop-file-install --dir=$RPM_BUILD_ROOT%{_datadir}/applications xfreerdp.desktop
-install -p -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
+install -p -m 644 -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
 
 
 %clean
@@ -161,6 +161,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Sat Aug 31 2013 Mads Kiilerich <mads@kiilerich.com> - 1.0.2-4
+- don't make freerdp.png executable
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.2-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
