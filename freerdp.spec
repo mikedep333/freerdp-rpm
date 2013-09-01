@@ -1,12 +1,12 @@
 Name:           freerdp
-Version:        1.0.2
-Release:        4%{?dist}
+Version:        1.1.0
+Release:        0.beta1%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
-Source0:        http://pub.freerdp.com/releases/%{name}-%{version}.tar.gz
+Source0:        http://pub.freerdp.com/releases/%{name}-%{version}-beta1.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  cmake
@@ -26,7 +26,7 @@ BuildRequires:  desktop-file-utils
 
 Provides:       xfreerdp = %{version}-%{release}
 Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
-Requires:       %{name}-plugins%{?_isa} = %{version}-%{release}
+Requires:       %{name}-libwinpr%{?_isa} = %{version}-%{release}
 
 %description
 The xfreerdp Remote Desktop Protocol (RDP) client from the FreeRDP
@@ -39,6 +39,9 @@ machines, xrdp and VirtualBox.
 %package        libs
 Summary:        Core libraries implementing the RDP protocol
 Group:          Applications/Communications
+Requires:       %{name}-libwinpr%{?_isa} = %{version}-%{release}
+Obsoletes:      %{name}-plugins < 1.1.0-0
+Provides:       %{name}-plugins = %{version}-%{release}
 %description    libs
 libfreerdp-core can be embedded in applications.
 
@@ -48,30 +51,28 @@ applications together with libfreerdp-core.
 libfreerdp-core can be extended with plugins handling RDP channels.
 
 
-%package        plugins
-Summary:        Plugins for handling the standard RDP channels
+%package        libwinpr
+Summary:        FreeRDP Windows API runtime
 Group:          Applications/Communications
-Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
-%description    plugins
-A set of plugins to the channel manager implementing the standard virtual
-channels extending RDP core functionality. For instance, sounds, clipboard
-sync, disk/printer redirection, etc.
+%description    libwinpr
+An implementation of much of Windows' APIs.
 
 
 %package        devel
 Summary:        Development files for %{name}
 Group:          Development/Libraries
 Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
+Requires:       %{name}-libwinpr%{?_isa} = %{version}-%{release}
 Requires:       pkgconfig
 
 %description    devel
 The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}-libs.
+developing applications that use %{name} libs.
 
 
 %prep
 
-%setup -q
+%setup -q -n freerdp-1.1.0-beta1
 
 cat << EOF > xfreerdp.desktop 
 [Desktop Entry]
@@ -110,19 +111,10 @@ make %{?_smp_mflags}
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
-
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL='install -p'
-
-# No need for keymap files when using xkbfile
-rm -rf $RPM_BUILD_ROOT/usr/share/freerdp
 
 desktop-file-install --dir=$RPM_BUILD_ROOT%{_datadir}/applications xfreerdp.desktop
 install -p -m 644 -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
-
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 
 %post
@@ -147,20 +139,24 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %defattr(-,root,root,-)
 %doc LICENSE README ChangeLog
 %{_libdir}/lib%{name}-*.so.*
-%dir %{_libdir}/%{name}/
 
-%files plugins
+%files libwinpr
 %defattr(-,root,root,-)
-%{_libdir}/%{name}/*
+%{_libdir}/libwinpr-*.so.*
 
 %files devel
 %defattr(-,root,root,-)
 %{_includedir}/%{name}/
-%{_libdir}/lib%{name}-*.so
+%{_includedir}/winpr/
+%{_libdir}/lib*.so
 %{_libdir}/pkgconfig/%{name}.pc
 
 
 %changelog
+* Sun Sep 01 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.beta+2013071101
+- Update to 1.1.0 beta1, add winpr package, drop plugins package.
+- Drop unnecessary rm -rf of build roots.
+
 * Sat Aug 31 2013 Mads Kiilerich <mads@kiilerich.com> - 1.0.2-4
 - don't make freerdp.png executable
 
