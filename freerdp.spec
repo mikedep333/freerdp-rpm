@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.1.beta1%{?dist}
+Release:        0.2.beta1%{?dist}
 Summary:        Remote Desktop Protocol client
 
 Group:          Applications/Communications
@@ -103,7 +103,11 @@ EOF
         -DWITH_CUNIT=OFF \
         -DWITH_DIRECTFB=OFF \
         -DWITH_FFMPEG=OFF \
+%ifarch x86_64
+        -DWITH_SSE2=ON \
+%else
         -DWITH_SSE2=OFF \
+%endif
 %ifarch armv7hl
         -DARM_FP_ABI=hard \
         -DWITH_NEON=OFF \
@@ -165,6 +169,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Sun Sep 01 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.2.beta1
+- SSE2 should only be used on x86_64
+
 * Sun Sep 01 2013 Dennis Gilmore <dennis@ausil.us> - 1.1.0-0.1.beta1
 - disable neon on armv7hl and armv5tel
 - set arm floating point correctly for the different targets
