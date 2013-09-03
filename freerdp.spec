@@ -139,6 +139,12 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %postun libs -p /sbin/ldconfig
 
 
+%post libwinpr -p /sbin/ldconfig
+
+
+%postun libwinpr -p /sbin/ldconfig
+
+
 %files
 %{_bindir}/xfreerdp
 %{_mandir}/man1/xfreerdp.*
@@ -161,6 +167,8 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %changelog
 * Tue Sep 03 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.3.beta1
+- Add missing ldconfig for libwinpr
+- Based on patch from Simone Caronni:
 - Remove obsolete defattr, Group and BuildRoot RPM tags for Fedora / RHEL 6+.
 - Move license file and documentation to libwinpr subpackage so any combination
   of installed packages result in the LICENSE file available.
