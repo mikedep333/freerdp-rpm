@@ -140,23 +140,19 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %files
-%defattr(-,root,root,-)
 %{_bindir}/xfreerdp
 %{_mandir}/man1/xfreerdp.*
 %{_datadir}/applications/xfreerdp.desktop
 %{_datadir}/icons/hicolor/256x256/apps/%{name}.png
 
 %files libs
-%defattr(-,root,root,-)
 %doc LICENSE README ChangeLog
 %{_libdir}/lib%{name}-*.so.*
 
 %files libwinpr
-%defattr(-,root,root,-)
 %{_libdir}/libwinpr-*.so.*
 
 %files devel
-%defattr(-,root,root,-)
 %{_includedir}/%{name}/
 %{_includedir}/winpr/
 %{_libdir}/lib*.so
@@ -165,7 +161,7 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %changelog
 * Tue Sep 03 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.3.beta1
-- Remove obsolete Group and BuildRoot RPM tags for Fedora / RHEL 6+.
+- Remove obsolete defattr, Group and BuildRoot RPM tags for Fedora / RHEL 6+.
 
 * Sun Sep 01 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.2.beta1
 - SSE2 should only be used on x86_64
