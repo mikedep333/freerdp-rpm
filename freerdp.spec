@@ -128,7 +128,7 @@ desktop-file-install --dir=$RPM_BUILD_ROOT%{_datadir}/applications xfreerdp.desk
 install -p -m 644 -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
 
 rm $RPM_BUILD_ROOT%{_libdir}/libwinpr-makecert-tool.a
-rm $RPM_BUILD_ROOT%{_libdir}/libxfreerdp-client.so.1.1*
+rm $RPM_BUILD_ROOT%{_libdir}/libxfreerdp-client.so*
 
 
 %post
