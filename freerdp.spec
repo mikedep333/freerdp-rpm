@@ -1,11 +1,11 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.2.beta1%{?dist}
+Release:        0.3.beta.2013071101%{?dist}
 Summary:        Remote Desktop Protocol client
 
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
-Source0:        http://pub.freerdp.com/releases/%{name}-%{version}-beta1.tar.gz
+Source0:        http://pub.freerdp.com/releases/%{name}-%{version}-beta+2013071101.tar.gz
 
 BuildRequires:  cmake
 BuildRequires:  xmlto
@@ -67,7 +67,7 @@ developing applications that use %{name} libs.
 
 %prep
 
-%setup -q -n freerdp-1.1.0-beta1
+%setup -q -n freerdp-1.1.0-beta+2013071101
 
 cat << EOF > xfreerdp.desktop 
 [Desktop Entry]
@@ -127,6 +127,9 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL='install -p'
 desktop-file-install --dir=$RPM_BUILD_ROOT%{_datadir}/applications xfreerdp.desktop
 install -p -m 644 -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
 
+rm $RPM_BUILD_ROOT%{_libdir}/libwinpr-makecert-tool.a
+rm $RPM_BUILD_ROOT%{_libdir}/libxfreerdp-client.so.1.1*
+
 
 %post
 # This is no gtk application, but try to integrate nicely with GNOME if it is available
@@ -169,6 +172,7 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 * Tue Sep 03 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.3.beta1
 - Add missing ldconfig for libwinpr
 - Based on patch from Simone Caronni:
+- Update to the latest beta 1 refresh (1.1.0-beta+2013071101).
 - Remove obsolete defattr, Group and BuildRoot RPM tags for Fedora / RHEL 6+.
 - Move license file and documentation to libwinpr subpackage so any combination
   of installed packages result in the LICENSE file available.
