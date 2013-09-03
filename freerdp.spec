@@ -3,11 +3,9 @@ Version:        1.1.0
 Release:        0.2.beta1%{?dist}
 Summary:        Remote Desktop Protocol client
 
-Group:          Applications/Communications
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
 Source0:        http://pub.freerdp.com/releases/%{name}-%{version}-beta1.tar.gz
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  cmake
 BuildRequires:  xmlto
@@ -38,7 +36,6 @@ machines, xrdp and VirtualBox.
 
 %package        libs
 Summary:        Core libraries implementing the RDP protocol
-Group:          Applications/Communications
 Requires:       %{name}-libwinpr%{?_isa} = %{version}-%{release}
 Obsoletes:      %{name}-plugins < 1.1.0-0
 Provides:       %{name}-plugins = %{version}-%{release}
@@ -53,14 +50,12 @@ libfreerdp-core can be extended with plugins handling RDP channels.
 
 %package        libwinpr
 Summary:        FreeRDP Windows API runtime
-Group:          Applications/Communications
 %description    libwinpr
 An implementation of much of Windows' APIs.
 
 
 %package        devel
 Summary:        Development files for %{name}
-Group:          Development/Libraries
 Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
 Requires:       %{name}-libwinpr%{?_isa} = %{version}-%{release}
 Requires:       pkgconfig
@@ -169,6 +164,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Tue Sep 03 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.3.beta1
+- Remove obsolete Group and BuildRoot RPM tags for Fedora / RHEL 6+.
+
 * Sun Sep 01 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.2.beta1
 - SSE2 should only be used on x86_64
 
