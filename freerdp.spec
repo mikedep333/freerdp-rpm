@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.3.beta.2013071101%{?dist}
+Release:        0.4.beta.2013071101%{?dist}
 Summary:        Remote Desktop Protocol client
 
 License:        ASL 2.0
@@ -128,7 +128,6 @@ desktop-file-install --dir=$RPM_BUILD_ROOT%{_datadir}/applications xfreerdp.desk
 install -p -m 644 -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
 
 rm $RPM_BUILD_ROOT%{_libdir}/libwinpr-makecert-tool.a
-rm $RPM_BUILD_ROOT%{_libdir}/libxfreerdp-client.so*
 
 
 %post
@@ -156,6 +155,7 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %files libs
 %{_libdir}/lib%{name}-*.so.*
+%{_libdir}/libxfreerdp-client.so.*
 
 %files libwinpr
 %doc LICENSE README ChangeLog
@@ -165,10 +165,14 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_includedir}/%{name}/
 %{_includedir}/winpr/
 %{_libdir}/lib*.so
+%{_libdir}/libxfreerdp-client.so
 %{_libdir}/pkgconfig/%{name}.pc
 
 
 %changelog
+* Thu Sep 05 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.4.beta.2013071101
+- libxfreerdp-client is needed ...
+
 * Tue Sep 03 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.3.beta1
 - Add missing ldconfig for libwinpr
 - Based on patch from Simone Caronni:
