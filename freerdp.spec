@@ -1,6 +1,7 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.4.beta.2013071101%{?dist}
+Release:        0.5.beta.2013071101%{?dist}
+Epoch:          1
 Summary:        Remote Desktop Protocol client
 
 License:        ASL 2.0
@@ -170,6 +171,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Tue Sep 10 2013 Simone Caronni <negativo17@gmail.com> - 1.1.0-0.5.beta.2013071101
+- Bump epoch.
+
 * Thu Sep 05 2013 Mads Kiilerich <mads@kiilerich.com> - 1.1.0-0.4.beta.2013071101
 - libxfreerdp-client is needed ...
 
