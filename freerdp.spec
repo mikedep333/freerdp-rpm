@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.5.beta.2013071101%{?dist}
+Release:        0.6.beta.2013071101%{?dist}
 Epoch:          1
 Summary:        Remote Desktop Protocol client
 
@@ -24,8 +24,8 @@ BuildRequires:  pcsc-lite-devel
 BuildRequires:  desktop-file-utils
 
 Provides:       xfreerdp = %{version}-%{release}
-Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
-Requires:       %{name}-libwinpr%{?_isa} = %{version}-%{release}
+Requires:       %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:       %{name}-libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
 
 %description
 The xfreerdp Remote Desktop Protocol (RDP) client from the FreeRDP
@@ -37,7 +37,7 @@ machines, xrdp and VirtualBox.
 
 %package        libs
 Summary:        Core libraries implementing the RDP protocol
-Requires:       %{name}-libwinpr%{?_isa} = %{version}-%{release}
+Requires:       %{name}-libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
 Obsoletes:      %{name}-plugins < 1.1.0-0
 Provides:       %{name}-plugins = %{version}-%{release}
 %description    libs
@@ -57,8 +57,8 @@ An implementation of much of Windows' APIs.
 
 %package        devel
 Summary:        Development files for %{name}
-Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
-Requires:       %{name}-libwinpr%{?_isa} = %{version}-%{release}
+Requires:       %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:       %{name}-libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:       pkgconfig
 
 %description    devel
@@ -171,6 +171,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Tue Sep 10 2013 Simone Caronni <negativo17@gmail.com> - 1.1.0-0.6.beta.2013071101
+- Add epoch to requirements.
+
 * Tue Sep 10 2013 Simone Caronni <negativo17@gmail.com> - 1.1.0-0.5.beta.2013071101
 - Bump epoch.
 
