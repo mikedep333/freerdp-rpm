@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.6.beta.2013071101%{?dist}
+Release:        0.7.beta.2013071101%{?dist}
 Epoch:          1
 Summary:        Remote Desktop Protocol client
 
@@ -38,7 +38,7 @@ machines, xrdp and VirtualBox.
 %package        libs
 Summary:        Core libraries implementing the RDP protocol
 Requires:       %{name}-libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
-Obsoletes:      %{name}-plugins < 1.1.0-0
+Obsoletes:      %{name}-plugins < 1:1.1.0
 Provides:       %{name}-plugins = %{version}-%{release}
 %description    libs
 libfreerdp-core can be embedded in applications.
@@ -171,6 +171,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Mon Nov 04 2013 Kalev Lember <kalevlember@gmail.com> - 1.1.0-0.7.beta.2013071101
+- Add missing epoch to freerdp-plugins obsoletes
+
 * Tue Sep 10 2013 Simone Caronni <negativo17@gmail.com> - 1.1.0-0.6.beta.2013071101
 - Add epoch to requirements.
 
