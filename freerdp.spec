@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.7.beta.2013071101%{?dist}
+Release:        0.8.beta.2013071101%{?dist}
 Epoch:          1
 Summary:        Remote Desktop Protocol client
 
@@ -85,7 +85,7 @@ EOF
 
 %build
 
-%cmake \
+%cmake %{?_cmake_skip_rpath} \
         -DWITH_CUPS=ON \
         -DWITH_PCSC=ON \
         -DWITH_PULSEAUDIO=ON \
@@ -171,6 +171,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Sat Dec 21 2013 Ville Skyttä <ville.skytta@iki.fi> - 1:1.1.0-0.8.beta.2013071101
+- Disable RPATH.
+
 * Mon Nov 04 2013 Kalev Lember <kalevlember@gmail.com> - 1.1.0-0.7.beta.2013071101
 - Add missing epoch to freerdp-plugins obsoletes
 
