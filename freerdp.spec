@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.8.beta.2013071101%{?dist}
+Release:        0.9.beta.2013071101%{?dist}
 Epoch:          1
 Summary:        Remote Desktop Protocol client
 
@@ -127,6 +127,7 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL='install -p'
 
 desktop-file-install --dir=$RPM_BUILD_ROOT%{_datadir}/applications xfreerdp.desktop
 install -p -m 644 -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
+install -p -m 644 -D resources/FreeRDP_Icon.svg $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 
 rm $RPM_BUILD_ROOT%{_libdir}/libwinpr-makecert-tool.a
 
@@ -153,6 +154,7 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_mandir}/man1/xfreerdp.*
 %{_datadir}/applications/xfreerdp.desktop
 %{_datadir}/icons/hicolor/256x256/apps/%{name}.png
+%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 
 %files libs
 %{_libdir}/lib%{name}-*.so.*
@@ -171,6 +173,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Sun Feb  2 2014 Ville Skyttä <ville.skytta@iki.fi> - 1:1.1.0-0.9.beta.2013071101
+- Install SVG icon.
+
 * Sat Dec 21 2013 Ville Skyttä <ville.skytta@iki.fi> - 1:1.1.0-0.8.beta.2013071101
 - Disable RPATH.
 
