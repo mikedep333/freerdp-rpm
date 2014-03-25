@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.9.beta.2013071101%{?dist}
+Release:        0.10.beta.2013071101%{?dist}
 Epoch:          1
 Summary:        Remote Desktop Protocol client
 
@@ -88,7 +88,7 @@ EOF
 %cmake %{?_cmake_skip_rpath} \
         -DWITH_CUPS=ON \
         -DWITH_PCSC=ON \
-        -DWITH_PULSEAUDIO=ON \
+        -DWITH_PULSE=ON \
         -DWITH_X11=ON \
         -DWITH_XCURSOR=ON \
         -DWITH_XEXT=ON \
@@ -173,6 +173,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Tue Mar 25 2014 Mads Kiilerich <mads@kiilerich.com> - 1:1.1.0-0.10.beta.2013071101
+- Fix PulseAudio define
+
 * Sun Feb  2 2014 Ville Skyttä <ville.skytta@iki.fi> - 1:1.1.0-0.9.beta.2013071101
 - Install SVG icon.
 
