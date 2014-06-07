@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.10.beta.2013071101%{?dist}
+Release:        0.11.beta.2013071101%{?dist}
 Epoch:          1
 Summary:        Remote Desktop Protocol client
 
@@ -173,6 +173,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:1.1.0-0.11.beta.2013071101
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Tue Mar 25 2014 Mads Kiilerich <mads@kiilerich.com> - 1:1.1.0-0.10.beta.2013071101
 - Fix PulseAudio define
 
