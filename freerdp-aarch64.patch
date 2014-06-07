@@ -1,0 +1,21 @@
+--- freerdp-1.1.0-beta+2013071101/cmake/ConfigOptions.cmake.orig	2014-06-07 20:34:55.607853558 +0100
++++ freerdp-1.1.0-beta+2013071101/cmake/ConfigOptions.cmake	2014-06-07 20:36:29.987547540 +0100
+@@ -6,6 +6,8 @@
+ elseif((CMAKE_SYSTEM_PROCESSOR MATCHES "i386") AND (CMAKE_SIZEOF_VOID_P EQUAL 8) AND (APPLE))
+ 	# Mac is weird like that.
+ 	set(TARGET_ARCH "x64")
++elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
++	set(TARGET_ARCH "AARCH64")
+ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm*")
+ 	set(TARGET_ARCH "ARM")
+ endif()
+@@ -19,6 +21,9 @@
+ 	option(WITH_SSE2 "Enable SSE2 optimization." OFF)
+ endif()
+ 
++if(TARGET_ARCH MATCHES "AARCH64")
++endif()
++
+ if(TARGET_ARCH MATCHES "ARM")
+ 	if (NOT DEFINED WITH_NEON)
+ 		option(WITH_NEON "Enable NEON optimization." ON)

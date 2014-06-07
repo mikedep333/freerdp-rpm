@@ -1,12 +1,13 @@
 Name:           freerdp
 Version:        1.1.0
-Release:        0.11.beta.2013071101%{?dist}
+Release:        0.12.beta.2013071101%{?dist}
 Epoch:          1
 Summary:        Remote Desktop Protocol client
 
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
 Source0:        http://pub.freerdp.com/releases/%{name}-%{version}-beta+2013071101.tar.gz
+Patch0:         freerdp-aarch64.patch
 
 BuildRequires:  cmake
 BuildRequires:  xmlto
@@ -67,8 +68,8 @@ developing applications that use %{name} libs.
 
 
 %prep
-
 %setup -q -n freerdp-1.1.0-beta+2013071101
+%patch0 -p1 -b .aarch64
 
 cat << EOF > xfreerdp.desktop 
 [Desktop Entry]
@@ -101,7 +102,8 @@ EOF
         -DWITH_FFMPEG=OFF \
 %ifarch x86_64
         -DWITH_SSE2=ON \
-%else
+%endif
+%ifarch %{ix86}
         -DWITH_SSE2=OFF \
 %endif
 %ifarch armv7hl
@@ -115,6 +117,9 @@ EOF
 %ifarch armv5tel armv6l armv7l
         -DARM_FP_ABI=soft \
         -DWITH_NEON=OFF \
+%endif
+%ifarch aarch64
+        -DWITH_SSE2=OFF \
 %endif
         -DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \
         .
@@ -173,6 +178,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 
 %changelog
+* Sat Jun  7 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1:1.1.0-0.12.beta.2013071101
+- Fix aarch64
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:1.1.0-0.11.beta.2013071101
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
