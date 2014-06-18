@@ -1,46 +1,51 @@
 Name:           freerdp
-Version:        1.1.0
-Release:        0.12.beta.2013071101%{?dist}
+Version:        1.2.0
+Release:        0.1.beta.1%{?dist}
 Epoch:          1
-Summary:        Remote Desktop Protocol client
+Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
-Source0:        http://pub.freerdp.com/releases/%{name}-%{version}-beta+2013071101.tar.gz
+Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{version}-beta1+android7.tar.gz
 Patch0:         freerdp-aarch64.patch
 
-BuildRequires:  cmake
-BuildRequires:  xmlto
+BuildRequires:  alsa-lib-devel
+BuildRequires:  cmake >= 2.8
+BuildRequires:  cups-devel
+BuildRequires:  gsm-devel
+BuildRequires:  gstreamer1-devel
+BuildRequires:  gstreamer1-plugins-base-devel
 BuildRequires:  openssl-devel
+BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  libX11-devel
-BuildRequires:  libXext-devel
-BuildRequires:  libXinerama-devel
 BuildRequires:  libXcursor-devel
 BuildRequires:  libXdamage-devel
-BuildRequires:  libXv-devel
+BuildRequires:  libXext-devel
+BuildRequires:  libXi-devel
+BuildRequires:  libXinerama-devel
 BuildRequires:  libxkbfile-devel
-BuildRequires:  pulseaudio-libs-devel
-BuildRequires:  cups-devel
+BuildRequires:  libXrandr-devel
+BuildRequires:  libXv-devel
 BuildRequires:  pcsc-lite-devel
-BuildRequires:  desktop-file-utils
+BuildRequires:  pulseaudio-libs-devel
+BuildRequires:  xmlto
+BuildRequires:  zlib-devel
 
 Provides:       xfreerdp = %{version}-%{release}
 Requires:       %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-Requires:       %{name}-libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:       libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
 
 %description
-The xfreerdp Remote Desktop Protocol (RDP) client from the FreeRDP
-project.
+The xfreerdp Remote Desktop Protocol (RDP) client from the FreeRDP project.
 
-xfreerdp can connect to RDP servers such as Microsoft Windows
-machines, xrdp and VirtualBox.
-
+xfreerdp can connect to RDP servers such as Microsoft Windows machines, xrdp and
+VirtualBox.
 
 %package        libs
 Summary:        Core libraries implementing the RDP protocol
-Requires:       %{name}-libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:       libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
 Obsoletes:      %{name}-plugins < 1:1.1.0
-Provides:       %{name}-plugins = %{version}-%{release}
+Provides:       %{name}-plugins = %{?epoch}:%{version}-%{release}
 %description    libs
 libfreerdp-core can be embedded in applications.
 
@@ -49,135 +54,143 @@ applications together with libfreerdp-core.
 
 libfreerdp-core can be extended with plugins handling RDP channels.
 
-
-%package        libwinpr
-Summary:        FreeRDP Windows API runtime
-%description    libwinpr
-An implementation of much of Windows' APIs.
-
-
 %package        devel
 Summary:        Development files for %{name}
 Requires:       %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-Requires:       %{name}-libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:       pkgconfig
+Requires:       cmake >= 2.8
 
 %description    devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name} libs.
+The %{name}-devel package contains libraries and header files for developing
+applications that use %{name}-libs.
 
+%package -n     libwinpr
+Summary:        Windows Portable Runtime
+Provides:       %{name}-libwinpr = %{?epoch}:%{version}-%{release}
+Obsoletes:      %{name}-libwinpr < %{?epoch}:%{version}-%{release}
+
+%description -n libwinpr
+WinPR provides API compatibility for applications targeting non-Windows
+environments. When on Windows, the original native API is being used instead of
+the equivalent WinPR implementation, without having to modify the code using it.
+
+%package -n     libwinpr-devel
+Summary:        Windows Portable Runtime development files
+Requires:       libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:       pkgconfig
+Requires:       cmake >= 2.8
+
+%description -n libwinpr-devel
+The %{name}-libwinpr-devel package contains libraries and header files for
+developing applications that use %{name}-libwinpr.
 
 %prep
-%setup -q -n freerdp-1.1.0-beta+2013071101
+%setup -qn FreeRDP-%{version}-beta1-android7
 %patch0 -p1 -b .aarch64
 
-cat << EOF > xfreerdp.desktop 
-[Desktop Entry]
-Type=Application
-Name=X FreeRDP
-NoDisplay=true
-Comment=Connect to RDP server and display remote desktop
-Icon=%{name}
-Exec=/usr/bin/xfreerdp
-Terminal=false
-Categories=Network;RemoteAccess;
-EOF
-
+# Rpmlint fixes
+find . -name "*.h" -exec chmod 664 {} \;
 
 %build
-
 %cmake %{?_cmake_skip_rpath} \
-        -DWITH_CUPS=ON \
-        -DWITH_PCSC=ON \
-        -DWITH_PULSE=ON \
-        -DWITH_X11=ON \
-        -DWITH_XCURSOR=ON \
-        -DWITH_XEXT=ON \
-        -DWITH_XINERAMA=ON \
-        -DWITH_XKBFILE=ON \
-        -DWITH_XV=ON \
-        -DWITH_ALSA=OFF \
-        -DWITH_CUNIT=OFF \
-        -DWITH_DIRECTFB=OFF \
-        -DWITH_FFMPEG=OFF \
+    -DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \
+    -DWITH_ALSA=ON \
+    -DWITH_CUPS=ON \
+    -DWITH_DIRECTFB=OFF \
+    -DWITH_FFMPEG=OFF \
+    -DWITH_GSM=ON \
+    -DWITH_GSTREAMER_1_0=ON \
+    -DWITH_IPP=OFF \
+    -DWITH_JPEG=ON \
+    -DWITH_OPENSSL=ON \
+    -DWITH_PCSC=ON \
+    -DWITH_PULSE=ON \
+    -DWITH_X11=ON \
+    -DWITH_XCURSOR=ON \
+    -DWITH_XEXT=ON \
+    -DWITH_XKBFILE=ON \
+    -DWITH_XI=ON \
+    -DWITH_XINERAMA=ON \
+    -DWITH_XRENDER=ON \
+    -DWITH_XV=ON \
+    -DWITH_ZLIB=ON \
 %ifarch x86_64
-        -DWITH_SSE2=ON \
-%endif
-%ifarch %{ix86}
-        -DWITH_SSE2=OFF \
+    -DWITH_SSE2=ON \
+%else
+    -DWITH_SSE2=OFF \
 %endif
 %ifarch armv7hl
-        -DARM_FP_ABI=hard \
-        -DWITH_NEON=OFF \
+    -DARM_FP_ABI=hard \
+    -DWITH_NEON=OFF \
 %endif
 %ifarch armv7hnl
-        -DARM_FP_ABI=hard \
-        -DWITH_NEON=ON \
+    -DARM_FP_ABI=hard \
+    -DWITH_NEON=ON \
 %endif
 %ifarch armv5tel armv6l armv7l
-        -DARM_FP_ABI=soft \
-        -DWITH_NEON=OFF \
+    -DARM_FP_ABI=soft \
+    -DWITH_NEON=OFF \
 %endif
 %ifarch aarch64
-        -DWITH_SSE2=OFF \
+    -DWITH_SSE2=OFF \
 %endif
-        -DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \
-        .
+    .
 
 make %{?_smp_mflags}
 
-
 %install
-make install DESTDIR=$RPM_BUILD_ROOT INSTALL='install -p'
+make install DESTDIR=%{buildroot} INSTALL='install -p'
 
-desktop-file-install --dir=$RPM_BUILD_ROOT%{_datadir}/applications xfreerdp.desktop
-install -p -m 644 -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
-install -p -m 644 -D resources/FreeRDP_Icon.svg $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
-
-rm $RPM_BUILD_ROOT%{_libdir}/libwinpr-makecert-tool.a
-
-
-%post
-# This is no gtk application, but try to integrate nicely with GNOME if it is available
-gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
-
+find %{buildroot} -name "*.a" -delete
 
 %post libs -p /sbin/ldconfig
 
-
 %postun libs -p /sbin/ldconfig
 
+%post -n libwinpr -p /sbin/ldconfig
 
-%post libwinpr -p /sbin/ldconfig
-
-
-%postun libwinpr -p /sbin/ldconfig
-
+%postun -n libwinpr -p /sbin/ldconfig
 
 %files
 %{_bindir}/xfreerdp
 %{_mandir}/man1/xfreerdp.*
-%{_datadir}/applications/xfreerdp.desktop
-%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
-%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 
 %files libs
-%{_libdir}/lib%{name}-*.so.*
-%{_libdir}/libxfreerdp-client.so.*
-
-%files libwinpr
 %doc LICENSE README ChangeLog
-%{_libdir}/libwinpr-*.so.*
+%{_libdir}/%{name}/
+%{_libdir}/lib%{name}*.so.*
+%{_libdir}/libx%{name}*.so.*
 
 %files devel
-%{_includedir}/%{name}/
-%{_includedir}/winpr/
-%{_libdir}/lib*.so
-%{_libdir}/libxfreerdp-client.so
+%{_libdir}/cmake/FreeRDP
+%{_includedir}/%{name}
+%{_libdir}/lib%{name}*.so
+%{_libdir}/libx%{name}*.so
 %{_libdir}/pkgconfig/%{name}.pc
 
+%files -n libwinpr
+%doc LICENSE README ChangeLog
+%{_libdir}/libwinpr*.so.*
+
+%files -n libwinpr-devel
+%{_libdir}/cmake/WinPR
+%{_includedir}/winpr
+%{_libdir}/libwinpr*.so
+%{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Tue Jun 17 2014 Simone Caronni <negativo17@gmail.com> - 1:1.2.0-0.1.beta.1
+- Update to latest 1.2.0 beta 1.
+- Rename freerdp-libwinpr to libwinpr and create a separate libwinpr-devel
+  subpackage now that is considered a different set of libraries.
+- Put CMake files in devel subpackages.
+- Enable new Gstreamer 1.0, OpenSSL, JPEG, GSM, Zlib, libXi and Xrandr support.
+- Add new BuildRequires, build options and sort them.
+- Fix rpmlint complaints.
+- Align all description etc. to column 80.
+- Remove desktop file for xfreerdp, it is command line only and has its own
+  icon.
+
 * Sat Jun  7 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1:1.1.0-0.12.beta.2013071101
 - Fix aarch64
 
