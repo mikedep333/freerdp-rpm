@@ -96,6 +96,7 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \
     -DWITH_ALSA=ON \
     -DWITH_CUPS=ON \
+    -DWITH_CHANNELS=ON -DSTATIC_CHANNELS=OFF \
     -DWITH_DIRECTFB=OFF \
     -DWITH_FFMPEG=OFF \
     -DWITH_GSM=ON \
@@ -185,6 +186,7 @@ find %{buildroot} -name "*.a" -delete
   subpackage now that is considered a different set of libraries.
 - Put CMake files in devel subpackages.
 - Enable new Gstreamer 1.0, OpenSSL, JPEG, GSM, Zlib, libXi and Xrandr support.
+- Disable static channels.
 - Add new BuildRequires, build options and sort them.
 - Fix rpmlint complaints.
 - Align all description etc. to column 80.
