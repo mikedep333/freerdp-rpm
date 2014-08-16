@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.2.0
-Release:        0.1.beta.1%{?dist}
+Release:        0.2.beta.1%{?dist}
 Epoch:          1
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
@@ -180,6 +180,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:1.2.0-0.2.beta.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
 * Tue Jun 17 2014 Simone Caronni <negativo17@gmail.com> - 1:1.2.0-0.1.beta.1
 - Update to latest 1.2.0 beta 1.
 - Rename freerdp-libwinpr to libwinpr and create a separate libwinpr-devel
