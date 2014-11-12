@@ -1,12 +1,12 @@
 Name:           freerdp
 Version:        1.2.0
-Release:        0.2.beta.1%{?dist}
+Release:        0.3.beta.1%{?dist}
 Epoch:          1
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
-Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{version}-beta1+android7.tar.gz
+Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{version}-beta1+android9.tar.gz
 Patch0:         freerdp-aarch64.patch
 
 BuildRequires:  alsa-lib-devel
@@ -85,7 +85,7 @@ The %{name}-libwinpr-devel package contains libraries and header files for
 developing applications that use %{name}-libwinpr.
 
 %prep
-%setup -qn FreeRDP-%{version}-beta1-android7
+%setup -qn FreeRDP-%{version}-beta1-android9
 %patch0 -p1 -b .aarch64
 
 # Rpmlint fixes
@@ -180,6 +180,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Wed Nov 12 2014 Simone Caronni <negativo17@gmail.com> - 1:1.2.0-0.3.beta.1
+- Update to latest 1.2.0 beta 1 refresh.
+
 * Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:1.2.0-0.2.beta.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
