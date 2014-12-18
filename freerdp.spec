@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.2.0
-Release:        0.3.beta.1%{?dist}
+Release:        0.4.beta.1%{?dist}
 Epoch:          1
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
@@ -8,6 +8,8 @@ License:        ASL 2.0
 URL:            http://www.freerdp.com/
 Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{version}-beta1+android9.tar.gz
 Patch0:         freerdp-aarch64.patch
+# https://github.com/FreeRDP/FreeRDP/commit/1b663ceffe51008af7ae9749e5b7999b2f7d6698
+Patch1:         freerdp-cmake-list.patch
 
 BuildRequires:  alsa-lib-devel
 BuildRequires:  cmake >= 2.8
@@ -87,6 +89,7 @@ developing applications that use %{name}-libwinpr.
 %prep
 %setup -qn FreeRDP-%{version}-beta1-android9
 %patch0 -p1 -b .aarch64
+%patch1 -p1 -b .cmake-list
 
 # Rpmlint fixes
 find . -name "*.h" -exec chmod 664 {} \;
@@ -180,6 +183,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Tue Dec 16 2014 Simone Caronni <negativo17@gmail.com> - 1:1.2.0-0.4.beta.1
+- Fix build on CMake 3.1.
+
 * Wed Nov 12 2014 Simone Caronni <negativo17@gmail.com> - 1:1.2.0-0.3.beta.1
 - Update to latest 1.2.0 beta 1 refresh.
 
