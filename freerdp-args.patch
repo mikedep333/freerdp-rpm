@@ -1,0 +1,27 @@
+diff -up FreeRDP-1.2.0-beta1-android9/client/common/cmdline.c.args FreeRDP-1.2.0-beta1-android9/client/common/cmdline.c
+--- FreeRDP-1.2.0-beta1-android9/client/common/cmdline.c.args	2015-01-14 15:53:01.654250627 -0700
++++ FreeRDP-1.2.0-beta1-android9/client/common/cmdline.c	2015-01-14 15:54:14.634837903 -0700
+@@ -1087,7 +1087,7 @@ BOOL freerdp_client_detect_command_line(
+ 	*flags |= COMMAND_LINE_SIGIL_DASH | COMMAND_LINE_SIGIL_DOUBLE_DASH;
+ 	*flags |= COMMAND_LINE_SIGIL_ENABLE_DISABLE;
+ 
+-	if (windows_cli_count >= posix_cli_count)
++	if ((windows_cli_count >= 0) && (windows_cli_count >= posix_cli_count))
+ 	{
+ 		*flags = COMMAND_LINE_SEPARATOR_COLON;
+ 		*flags |= COMMAND_LINE_SIGIL_SLASH | COMMAND_LINE_SIGIL_PLUS_MINUS;
+diff -up FreeRDP-1.2.0-beta1-android9/client/common/compatibility.c.args FreeRDP-1.2.0-beta1-android9/client/common/compatibility.c
+--- FreeRDP-1.2.0-beta1-android9/client/common/compatibility.c.args	2014-09-11 16:46:32.000000000 -0600
++++ FreeRDP-1.2.0-beta1-android9/client/common/compatibility.c	2015-01-14 15:53:01.655250622 -0700
+@@ -262,8 +262,10 @@ int freerdp_client_old_command_line_pre_
+ 					}
+ 
+ 					if (p != NULL)
+-					{
+ 						p = strchr(p, ':');
++
++					if (p != NULL)
++					{
+ 						length = (int) (p - a);
+ 						args->argv[j + 1] = (char*) malloc(length + 1);
+ 						CopyMemory(args->argv[j + 1], a, length);

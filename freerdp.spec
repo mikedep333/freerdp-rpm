@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.2.0
-Release:        0.4.beta.1%{?dist}
+Release:        0.5.beta.1%{?dist}
 Epoch:          1
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
@@ -10,6 +10,9 @@ Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{version}-beta1+andr
 Patch0:         freerdp-aarch64.patch
 # https://github.com/FreeRDP/FreeRDP/commit/1b663ceffe51008af7ae9749e5b7999b2f7d6698
 Patch1:         freerdp-cmake-list.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1150349
+# https://github.com/FreeRDP/FreeRDP/pull/2305
+Patch2:         freerdp-args.patch
 
 BuildRequires:  alsa-lib-devel
 BuildRequires:  cmake >= 2.8
@@ -90,6 +93,7 @@ developing applications that use %{name}-libwinpr.
 %setup -qn FreeRDP-%{version}-beta1-android9
 %patch0 -p1 -b .aarch64
 %patch1 -p1 -b .cmake-list
+%patch2 -p1 -b .args
 
 # Rpmlint fixes
 find . -name "*.h" -exec chmod 664 {} \;
@@ -183,6 +187,10 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Wed Jan 14 2015 Orion Poplawski <orion@cora.nwra.com> - 1:1.2.0-0.5.beta.1
+- Add patch to fix command line parsing segfault (bug #1150349) and to
+  fix old style command line options
+
 * Tue Dec 16 2014 Simone Caronni <negativo17@gmail.com> - 1:1.2.0-0.4.beta.1
 - Fix build on CMake 3.1.
 
