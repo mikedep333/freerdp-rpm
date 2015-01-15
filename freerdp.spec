@@ -1,6 +1,6 @@
 Name:           freerdp
 Version:        1.2.0
-Release:        0.5.beta.1%{?dist}
+Release:        0.6.beta.1%{?dist}
 Epoch:          1
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
@@ -11,7 +11,7 @@ Patch0:         freerdp-aarch64.patch
 # https://github.com/FreeRDP/FreeRDP/commit/1b663ceffe51008af7ae9749e5b7999b2f7d6698
 Patch1:         freerdp-cmake-list.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1150349
-# https://github.com/FreeRDP/FreeRDP/pull/2305
+# https://github.com/FreeRDP/FreeRDP/pull/2310
 Patch2:         freerdp-args.patch
 
 BuildRequires:  alsa-lib-devel
@@ -187,6 +187,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Thu Jan 15 2015 Orion Poplawski <orion@cora.nwra.com> - 1:1.2.0-0.6.beta.1
+- Use better upstream patch to fix command line parsing
+
 * Wed Jan 14 2015 Orion Poplawski <orion@cora.nwra.com> - 1:1.2.0-0.5.beta.1
 - Add patch to fix command line parsing segfault (bug #1150349) and to
   fix old style command line options
