@@ -1,18 +1,13 @@
 Name:           freerdp
 Version:        1.2.0
-Release:        0.6.beta.1%{?dist}
+Release:        0.7.beta.1%{?dist}
 Epoch:          1
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
-Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{version}-beta1+android9.tar.gz
+Source0:        %{version}-beta1+20150313.tar.gz
 Patch0:         freerdp-aarch64.patch
-# https://github.com/FreeRDP/FreeRDP/commit/1b663ceffe51008af7ae9749e5b7999b2f7d6698
-Patch1:         freerdp-cmake-list.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1150349
-# https://github.com/FreeRDP/FreeRDP/pull/2310
-Patch2:         freerdp-args.patch
 
 BuildRequires:  alsa-lib-devel
 BuildRequires:  cmake >= 2.8
@@ -69,6 +64,13 @@ Requires:       cmake >= 2.8
 The %{name}-devel package contains libraries and header files for developing
 applications that use %{name}-libs.
 
+%package        server
+Summary:        Server support for %{name}
+
+%description    server
+The %{name}-server package contains servers which can export a desktop via
+the RDP protocol.
+
 %package -n     libwinpr
 Summary:        Windows Portable Runtime
 Provides:       %{name}-libwinpr = %{?epoch}:%{version}-%{release}
@@ -90,10 +92,8 @@ The %{name}-libwinpr-devel package contains libraries and header files for
 developing applications that use %{name}-libwinpr.
 
 %prep
-%setup -qn FreeRDP-%{version}-beta1-android9
+%setup -qn FreeRDP-%{version}-beta1-20150313
 %patch0 -p1 -b .aarch64
-%patch1 -p1 -b .cmake-list
-%patch2 -p1 -b .args
 
 # Rpmlint fixes
 find . -name "*.h" -exec chmod 664 {} \;
@@ -113,6 +113,7 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_OPENSSL=ON \
     -DWITH_PCSC=ON \
     -DWITH_PULSE=ON \
+    -DWITH_SERVER=ON \
     -DWITH_X11=ON \
     -DWITH_XCURSOR=ON \
     -DWITH_XEXT=ON \
@@ -168,13 +169,20 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/%{name}/
 %{_libdir}/lib%{name}*.so.*
 %{_libdir}/libx%{name}*.so.*
+%{_libdir}/librdtk.so.*
 
 %files devel
 %{_libdir}/cmake/FreeRDP
+%{_libdir}/cmake/RdTk
 %{_includedir}/%{name}
+%{_includedir}/rdtk
 %{_libdir}/lib%{name}*.so
 %{_libdir}/libx%{name}*.so
+%{_libdir}/librdtk.so
 %{_libdir}/pkgconfig/%{name}.pc
+
+%files server
+%{_bindir}/freerdp-shadow
 
 %files -n libwinpr
 %doc LICENSE README ChangeLog
@@ -187,6 +195,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Fri Mar 13 2015 David Woodhouse <dwmw2@infradead.org> - 1:1.2.0-0.7.beta.1
+- Update to git snapshot (dfc12385) and enable server build
+
 * Thu Jan 15 2015 Orion Poplawski <orion@cora.nwra.com> - 1:1.2.0-0.6.beta.1
 - Use better upstream patch to fix command line parsing
 
