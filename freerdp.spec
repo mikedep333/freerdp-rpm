@@ -1,12 +1,17 @@
+# https://fedoraproject.org/wiki/Packaging:SourceURL#Github
+%global commit 6ac718010a7fb330618c559345766c67267b6aa3
+%global shortcommit %(c=%{commit}; echo ${c:0:7})
+
 Name:           freerdp
-Version:        1.2.0
-Release:        0.7.beta.1%{?dist}
+Version:        1.2.1
+Release:        0.1%{?shortcommit:.git.%{shortcommit}}%{?dist}
 Epoch:          1
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
-Source0:        %{version}-beta1+20150313.tar.gz
+# VCS: git:https://github.com/FreeRDP/Remmina.git
+Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{commit}/FreeRDP-%{commit}.tar.gz
 Patch0:         freerdp-aarch64.patch
 
 BuildRequires:  alsa-lib-devel
@@ -92,7 +97,7 @@ The %{name}-libwinpr-devel package contains libraries and header files for
 developing applications that use %{name}-libwinpr.
 
 %prep
-%setup -qn FreeRDP-%{version}-beta1-20150313
+%setup -qn FreeRDP-%{commit}
 %patch0 -p1 -b .aarch64
 
 # Rpmlint fixes
@@ -195,6 +200,10 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Fri Mar 13 2015 Simone Caronni <negativo17@gmail.com> - 1:1.2.1-0.1.git.6ac7180
+- Use packaging guidelines for Github snapshots.
+- Version is now at 1.2.1-dev.
+
 * Fri Mar 13 2015 David Woodhouse <dwmw2@infradead.org> - 1:1.2.0-0.7.beta.1
 - Update to git snapshot (dfc12385) and enable server build
 
