@@ -1,10 +1,10 @@
 # https://fedoraproject.org/wiki/Packaging:SourceURL#Github
-%global commit 6ac718010a7fb330618c559345766c67267b6aa3
+%global commit 24a752a70840f3e4b027ba7c020af71f2bcfd94a
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
 
 Name:           freerdp
 Version:        1.2.1
-Release:        0.1%{?shortcommit:.git.%{shortcommit}}%{?dist}
+Release:        0.2%{?shortcommit:.git.%{shortcommit}}%{?dist}
 Epoch:          1
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
@@ -13,6 +13,14 @@ URL:            http://www.freerdp.com/
 # VCS: git:https://github.com/FreeRDP/Remmina.git
 Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{commit}/FreeRDP-%{commit}.tar.gz
 Patch0:         freerdp-aarch64.patch
+# https://github.com/FreeRDP/FreeRDP/commit/1b663ceffe51008af7ae9749e5b7999b2f7d6698
+Patch1:         freerdp-cmake-list.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1150349
+# https://github.com/FreeRDP/FreeRDP/pull/2310
+Patch2:         freerdp-args.patch
+# We have to stick at commit 24a752a for now to stop breaking guacamole etc.,
+# and these are assorted shadow fixes from later.
+Patch3:         freerdp-fixes-since-24a752a.patch
 
 BuildRequires:  alsa-lib-devel
 BuildRequires:  cmake >= 2.8
@@ -99,6 +107,9 @@ developing applications that use %{name}-libwinpr.
 %prep
 %setup -qn FreeRDP-%{commit}
 %patch0 -p1 -b .aarch64
+%patch1 -p1 -b .cmake-list
+%patch2 -p1 -b .args
+%patch3 -p1 -b .fixes
 
 # Rpmlint fixes
 find . -name "*.h" -exec chmod 664 {} \;
@@ -119,6 +130,7 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_PCSC=ON \
     -DWITH_PULSE=ON \
     -DWITH_SERVER=ON \
+    -DWITH_WAYLAND=OFF \
     -DWITH_X11=ON \
     -DWITH_XCURSOR=ON \
     -DWITH_XEXT=ON \
@@ -200,6 +212,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Tue Mar 17 2015 David Woodhouse <dwmw2@infradead.org> - 1:1.2.1-0.2.git.24a752a
+- Revert to an older snapshot (+fixes) to fix guacamole-server build failure
+
 * Fri Mar 13 2015 Simone Caronni <negativo17@gmail.com> - 1:1.2.1-0.1.git.6ac7180
 - Use packaging guidelines for Github snapshots.
 - Version is now at 1.2.1-dev.
