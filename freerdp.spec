@@ -3,8 +3,8 @@
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
 
 Name:           freerdp
-Version:        1.2.1
-Release:        0.2%{?shortcommit:.git.%{shortcommit}}%{?dist}
+Version:        1.2.0
+Release:        0.8%{?shortcommit:.git.%{shortcommit}}%{?dist}
 Epoch:          1
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
@@ -212,6 +212,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Wed Mar 18 2015 David Woodhouse <dwmw2@infradead.org> - 1:1.2.0-0.8.git.24a752a
+- Fix version number. No epoch++ since it was only in rawhide & f22-beta updates-testing.
+
 * Tue Mar 17 2015 David Woodhouse <dwmw2@infradead.org> - 1:1.2.1-0.2.git.24a752a
 - Revert to an older snapshot (+fixes) to fix guacamole-server build failure
 
