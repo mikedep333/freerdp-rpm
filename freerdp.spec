@@ -4,8 +4,8 @@
 
 Name:           freerdp
 Version:        1.2.0
-Release:        0.8%{?shortcommit:.git.%{shortcommit}}%{?dist}
-Epoch:          1
+Release:        0.9%{?shortcommit:.git.%{shortcommit}}%{?dist}
+Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
 License:        ASL 2.0
@@ -212,6 +212,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Sun Mar 22 2015 Kalev Lember <kalevlember@gmail.com> - 2:1.2.0-0.9.git.24a752a
+- Bump epoch after the version downgrade
+
 * Wed Mar 18 2015 David Woodhouse <dwmw2@infradead.org> - 1:1.2.0-0.8.git.24a752a
 - Fix version number. No epoch++ since it was only in rawhide & f22-beta updates-testing.
 
