@@ -4,7 +4,7 @@
 
 Name:           freerdp
 Version:        1.2.0
-Release:        0.9%{?shortcommit:.git.%{shortcommit}}%{?dist}
+Release:        0.10%{?shortcommit:.git.%{shortcommit}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
@@ -212,6 +212,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:1.2.0-0.10.git.24a752a
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Sun Mar 22 2015 Kalev Lember <kalevlember@gmail.com> - 2:1.2.0-0.9.git.24a752a
 - Bump epoch after the version downgrade
 
