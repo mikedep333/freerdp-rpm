@@ -158,7 +158,7 @@ make %{?_smp_mflags}
 %install
 make install DESTDIR=%{buildroot} INSTALL='install -p'
 
-#find %{buildroot} -name "*.a" -delete
+find %{buildroot} -name "*.a" -delete
 
 %post libs -p /sbin/ldconfig
 
