@@ -1,26 +1,16 @@
-# https://fedoraproject.org/wiki/Packaging:SourceURL#Github
-%global commit 24a752a70840f3e4b027ba7c020af71f2bcfd94a
-%global shortcommit %(c=%{commit}; echo ${c:0:7})
+%global commit0 be8f8f72387e7878717b6f04c9a87f999449d20d
+%global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 Name:           freerdp
-Version:        1.2.0
-Release:        0.10%{?shortcommit:.git.%{shortcommit}}%{?dist}
+Version:        2.0.0
+Release:        1%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
-
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
-# VCS: git:https://github.com/FreeRDP/Remmina.git
-Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{commit}/FreeRDP-%{commit}.tar.gz
+
+Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{commit0}/FreeRDP-%{commit0}.tar.gz#/FreeRDP-%{shortcommit0}.tar.gz
 Patch0:         freerdp-aarch64.patch
-# https://github.com/FreeRDP/FreeRDP/commit/1b663ceffe51008af7ae9749e5b7999b2f7d6698
-Patch1:         freerdp-cmake-list.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1150349
-# https://github.com/FreeRDP/FreeRDP/pull/2310
-Patch2:         freerdp-args.patch
-# We have to stick at commit 24a752a for now to stop breaking guacamole etc.,
-# and these are assorted shadow fixes from later.
-Patch3:         freerdp-fixes-since-24a752a.patch
 
 BuildRequires:  alsa-lib-devel
 BuildRequires:  cmake >= 2.8
@@ -30,6 +20,7 @@ BuildRequires:  gstreamer1-devel
 BuildRequires:  gstreamer1-plugins-base-devel
 BuildRequires:  openssl-devel
 BuildRequires:  libjpeg-turbo-devel
+BuildRequires:  libwayland-client-devel
 BuildRequires:  libX11-devel
 BuildRequires:  libXcursor-devel
 BuildRequires:  libXdamage-devel
@@ -41,6 +32,7 @@ BuildRequires:  libXrandr-devel
 BuildRequires:  libXv-devel
 BuildRequires:  pcsc-lite-devel
 BuildRequires:  pulseaudio-libs-devel
+BuildRequires:  systemd-devel
 BuildRequires:  xmlto
 BuildRequires:  zlib-devel
 
@@ -105,11 +97,8 @@ The %{name}-libwinpr-devel package contains libraries and header files for
 developing applications that use %{name}-libwinpr.
 
 %prep
-%setup -qn FreeRDP-%{commit}
+%setup -qn FreeRDP-%{commit0}
 %patch0 -p1 -b .aarch64
-%patch1 -p1 -b .cmake-list
-%patch2 -p1 -b .args
-%patch3 -p1 -b .fixes
 
 # Rpmlint fixes
 find . -name "*.h" -exec chmod 664 {} \;
@@ -120,17 +109,19 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_ALSA=ON \
     -DWITH_CUPS=ON \
     -DWITH_CHANNELS=ON -DSTATIC_CHANNELS=OFF \
+    -DWITH_CLIENT=ON \
     -DWITH_DIRECTFB=OFF \
     -DWITH_FFMPEG=OFF \
     -DWITH_GSM=ON \
     -DWITH_GSTREAMER_1_0=ON \
     -DWITH_IPP=OFF \
     -DWITH_JPEG=ON \
+    -DWITH_MANPAGES=ON \
     -DWITH_OPENSSL=ON \
     -DWITH_PCSC=ON \
     -DWITH_PULSE=ON \
     -DWITH_SERVER=ON \
-    -DWITH_WAYLAND=OFF \
+    -DWITH_WAYLAND=ON \
     -DWITH_X11=ON \
     -DWITH_XCURSOR=ON \
     -DWITH_XEXT=ON \
@@ -167,7 +158,7 @@ make %{?_smp_mflags}
 %install
 make install DESTDIR=%{buildroot} INSTALL='install -p'
 
-find %{buildroot} -name "*.a" -delete
+#find %{buildroot} -name "*.a" -delete
 
 %post libs -p /sbin/ldconfig
 
@@ -178,11 +169,14 @@ find %{buildroot} -name "*.a" -delete
 %postun -n libwinpr -p /sbin/ldconfig
 
 %files
+%{_bindir}/wlfreerdp
 %{_bindir}/xfreerdp
 %{_mandir}/man1/xfreerdp.*
 
 %files libs
-%doc LICENSE README ChangeLog
+%{!?_licensedir:%global license %%doc}
+%license LICENSE
+%doc README ChangeLog
 %{_libdir}/%{name}/
 %{_libdir}/lib%{name}*.so.*
 %{_libdir}/libx%{name}*.so.*
@@ -202,7 +196,9 @@ find %{buildroot} -name "*.a" -delete
 %{_bindir}/freerdp-shadow
 
 %files -n libwinpr
-%doc LICENSE README ChangeLog
+%{!?_licensedir:%global license %%doc}
+%license LICENSE
+%doc README ChangeLog
 %{_libdir}/libwinpr*.so.*
 
 %files -n libwinpr-devel
@@ -212,6 +208,11 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Sun Nov 15 2015 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-1.git.be8f8f7
+- Update to latest snapshot, remove upstreamed patches.
+- Update to new packaging guidelines for GitHub sources and license tag.
+- Adjust CMake options to latest release, enable Wayland backend.
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:1.2.0-0.10.git.24a752a
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
