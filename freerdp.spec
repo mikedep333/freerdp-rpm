@@ -1,9 +1,15 @@
 %global commit0 b02943ae98d76420e5d6ee801a2d54db1d28f3ef
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
+# Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg" and
+# "--with=x264" to mock/rpmbuild or by globally setting this:
+
+# %%global _with_ffmpeg 1
+# %%global _with_x264 1
+
 Name:           freerdp
 Version:        2.0.0
-Release:        3%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
+Release:        4%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -15,6 +21,7 @@ Patch0:         freerdp-aarch64.patch
 BuildRequires:  alsa-lib-devel
 BuildRequires:  cmake >= 2.8
 BuildRequires:  cups-devel
+%{?_with_ffmpeg:BuildRequires:  ffmpeg-devel}
 BuildRequires:  gsm-devel
 BuildRequires:  gstreamer1-devel
 BuildRequires:  gstreamer1-plugins-base-devel
@@ -33,6 +40,7 @@ BuildRequires:  libXv-devel
 BuildRequires:  pcsc-lite-devel
 BuildRequires:  pulseaudio-libs-devel
 BuildRequires:  systemd-devel
+%{?_with_x264:BuildRequires:  x264-devel}
 BuildRequires:  xmlto
 BuildRequires:  zlib-devel
 
@@ -111,7 +119,7 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_CHANNELS=ON -DSTATIC_CHANNELS=OFF \
     -DWITH_CLIENT=ON \
     -DWITH_DIRECTFB=OFF \
-    -DWITH_FFMPEG=OFF \
+    %{?_with_ffmpeg:-DWITH_FFMPEG=ON} \
     -DWITH_GSM=ON \
     -DWITH_GSTREAMER_1_0=ON \
     -DWITH_IPP=OFF \
@@ -131,6 +139,7 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_XRENDER=ON \
     -DWITH_XV=ON \
     -DWITH_ZLIB=ON \
+    %{?_with_x264:-DWITH_X264=ON} \
 %ifarch x86_64
     -DWITH_SSE2=ON \
 %else
@@ -214,6 +223,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Sun Dec 13 2015 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-4.git.b02943a
+- Add FFMpeg/x264 build conditional.
+
 * Sun Dec 13 2015 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-3.git.b02943a
 - Move winpr-makecert into main package.
 
