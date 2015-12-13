@@ -3,7 +3,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        2%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
+Release:        3%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -174,6 +174,7 @@ find %{buildroot} -name "*.a" -delete
 %postun -n libwinpr -p /sbin/ldconfig
 
 %files
+%{_bindir}/winpr-makecert
 %{_bindir}/wlfreerdp
 %{_bindir}/xfreerdp
 %{_mandir}/man1/xfreerdp.*
@@ -204,7 +205,6 @@ find %{buildroot} -name "*.a" -delete
 %{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc README ChangeLog
-%{_bindir}/winpr-makecert
 %{_libdir}/libwinpr*.so.*
 
 %files -n libwinpr-devel
@@ -214,6 +214,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Sun Dec 13 2015 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-3.git.b02943a
+- Move winpr-makecert into main package.
+
 * Sun Dec 13 2015 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-2.git.b02943a
 - Update to latest snapshot.
 - Build winpr-makecert (#1288900).
