@@ -1,9 +1,9 @@
-%global commit0 be8f8f72387e7878717b6f04c9a87f999449d20d
+%global commit0 b02943ae98d76420e5d6ee801a2d54db1d28f3ef
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 Name:           freerdp
 Version:        2.0.0
-Release:        1%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
+Release:        2%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -155,8 +155,13 @@ find . -name "*.h" -exec chmod 664 {} \;
 
 make %{?_smp_mflags}
 
+pushd winpr/tools/makecert/cli
+make %{?_smp_mflags}
+popd
+
 %install
 make install DESTDIR=%{buildroot} INSTALL='install -p'
+install -p -m 0755 winpr/tools/makecert/cli/winpr-makecert %{buildroot}%{_bindir}/
 
 find %{buildroot} -name "*.a" -delete
 
@@ -199,6 +204,7 @@ find %{buildroot} -name "*.a" -delete
 %{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc README ChangeLog
+%{_bindir}/winpr-makecert
 %{_libdir}/libwinpr*.so.*
 
 %files -n libwinpr-devel
@@ -208,6 +214,10 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Sun Dec 13 2015 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-2.git.b02943a
+- Update to latest snapshot.
+- Build winpr-makecert (#1288900).
+
 * Sun Nov 15 2015 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-1.git.be8f8f7
 - Update to latest snapshot, remove upstreamed patches.
 - Update to new packaging guidelines for GitHub sources and license tag.
