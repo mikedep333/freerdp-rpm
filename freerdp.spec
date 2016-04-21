@@ -1,4 +1,4 @@
-%global commit0 b02943ae98d76420e5d6ee801a2d54db1d28f3ef
+%global commit0 ca2d015d7afab8af9523f0313b6846a3cd59f305
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg" and
@@ -6,10 +6,11 @@
 
 # %%global _with_ffmpeg 1
 # %%global _with_x264 1
+# %%global _with_openh264 1
 
 Name:           freerdp
 Version:        2.0.0
-Release:        5%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
+Release:        6%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -28,6 +29,7 @@ BuildRequires:  gstreamer1-plugins-base-devel
 BuildRequires:  openssl-devel
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  libwayland-client-devel
+BuildRequires:  libxkbcommon-devel
 BuildRequires:  libX11-devel
 BuildRequires:  libXcursor-devel
 BuildRequires:  libXdamage-devel
@@ -37,6 +39,7 @@ BuildRequires:  libXinerama-devel
 BuildRequires:  libxkbfile-devel
 BuildRequires:  libXrandr-devel
 BuildRequires:  libXv-devel
+%{?_with_openh264:BuildRequires:  openh264-devel}
 BuildRequires:  pcsc-lite-devel
 BuildRequires:  pulseaudio-libs-devel
 BuildRequires:  systemd-devel
@@ -125,6 +128,7 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_IPP=OFF \
     -DWITH_JPEG=ON \
     -DWITH_MANPAGES=ON \
+    %{?_with_openh264:-DWITH_OPENH264=ON} \
     -DWITH_OPENSSL=ON \
     -DWITH_PCSC=ON \
     -DWITH_PULSE=ON \
@@ -183,6 +187,7 @@ find %{buildroot} -name "*.a" -delete
 %postun -n libwinpr -p /sbin/ldconfig
 
 %files
+%{_bindir}/winpr-hash
 %{_bindir}/winpr-makecert
 %{_bindir}/wlfreerdp
 %{_bindir}/xfreerdp
@@ -192,37 +197,61 @@ find %{buildroot} -name "*.a" -delete
 %{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc README ChangeLog
-%{_libdir}/%{name}/
-%{_libdir}/lib%{name}*.so.*
-%{_libdir}/libx%{name}*.so.*
+%{_libdir}/%{name}2/
+%{_libdir}/libfreerdp-client.so.*
+%{_libdir}/libfreerdp-server.so.*
+%{_libdir}/libfreerdp-shadow.so.*
+%{_libdir}/libfreerdp-shadow-subsystem.so.*
+%{_libdir}/libfreerdp.so.*
+%{_libdir}/libuwac.so.*
 %{_libdir}/librdtk.so.*
+%{_libdir}/libxfreerdp-client.so.*
 
 %files devel
-%{_libdir}/cmake/FreeRDP
-%{_libdir}/cmake/RdTk
-%{_includedir}/%{name}
-%{_includedir}/rdtk
-%{_libdir}/lib%{name}*.so
-%{_libdir}/libx%{name}*.so
+%{_includedir}/freerdp2
+%{_includedir}/rdtk2
+%{_includedir}/uwac0
+%{_libdir}/cmake/FreeRDP2
+%{_libdir}/cmake/FreeRDP-Client2
+%{_libdir}/cmake/FreeRDP-Server2
+%{_libdir}/cmake/FreeRDP-Shadow2
+%{_libdir}/cmake/uwac0
+%{_libdir}/cmake/RdTk2
+%{_libdir}/libfreerdp-client.so
+%{_libdir}/libfreerdp-server.so
+%{_libdir}/libfreerdp-shadow.so
+%{_libdir}/libfreerdp-shadow-subsystem.so
+%{_libdir}/libfreerdp.so
+%{_libdir}/libuwac.so
 %{_libdir}/librdtk.so
-%{_libdir}/pkgconfig/%{name}.pc
+%{_libdir}/libxfreerdp-client.so
+%{_libdir}/pkgconfig/freerdp2.pc
+%{_libdir}/pkgconfig/freerdp-client2.pc
+%{_libdir}/pkgconfig/freerdp-server2.pc
+%{_libdir}/pkgconfig/freerdp-shadow2.pc
+%{_libdir}/pkgconfig/rdtk2.pc
+%{_libdir}/pkgconfig/uwac0.pc
 
 %files server
-%{_bindir}/freerdp-shadow
+%{_bindir}/freerdp-shadow-cli
 
 %files -n libwinpr
 %{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc README ChangeLog
-%{_libdir}/libwinpr*.so.*
+%{_libdir}/libwinpr.so.*
 
 %files -n libwinpr-devel
-%{_libdir}/cmake/WinPR
-%{_includedir}/winpr
-%{_libdir}/libwinpr*.so
-%{_libdir}/pkgconfig/winpr.pc
+%{_libdir}/cmake/WinPR2
+%{_includedir}/winpr2
+%{_libdir}/libwinpr.so
+%{_libdir}/pkgconfig/winpr2.pc
 
 %changelog
+* Thu Apr 21 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-6.git.ca2d015
+- Update to latest sources, adjust path of libraries.
+- Add OpenH264 conditional.
+
 * Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2:2.0.0-5.git.b02943a
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
