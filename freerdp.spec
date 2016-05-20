@@ -1,4 +1,4 @@
-%global commit0 ca2d015d7afab8af9523f0313b6846a3cd59f305
+%global commit0 aeabb9553170543197dffda680d38802270a79d3
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg" and
@@ -168,13 +168,13 @@ find . -name "*.h" -exec chmod 664 {} \;
 
 make %{?_smp_mflags}
 
-pushd winpr/tools/makecert/cli
+pushd winpr/tools/makecert-cli
 make %{?_smp_mflags}
 popd
 
 %install
 make install DESTDIR=%{buildroot} INSTALL='install -p'
-install -p -m 0755 winpr/tools/makecert/cli/winpr-makecert %{buildroot}%{_bindir}/
+install -p -m 0755 winpr/tools/makecert-cli/winpr-makecert %{buildroot}%{_bindir}/
 
 find %{buildroot} -name "*.a" -delete
 
@@ -204,32 +204,25 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/libfreerdp-shadow-subsystem.so.*
 %{_libdir}/libfreerdp.so.*
 %{_libdir}/libuwac.so.*
-%{_libdir}/librdtk.so.*
-%{_libdir}/libxfreerdp-client.so.*
 
 %files devel
 %{_includedir}/freerdp2
-%{_includedir}/rdtk2
 %{_includedir}/uwac0
 %{_libdir}/cmake/FreeRDP2
 %{_libdir}/cmake/FreeRDP-Client2
 %{_libdir}/cmake/FreeRDP-Server2
 %{_libdir}/cmake/FreeRDP-Shadow2
 %{_libdir}/cmake/uwac0
-%{_libdir}/cmake/RdTk2
 %{_libdir}/libfreerdp-client.so
 %{_libdir}/libfreerdp-server.so
 %{_libdir}/libfreerdp-shadow.so
 %{_libdir}/libfreerdp-shadow-subsystem.so
 %{_libdir}/libfreerdp.so
 %{_libdir}/libuwac.so
-%{_libdir}/librdtk.so
-%{_libdir}/libxfreerdp-client.so
 %{_libdir}/pkgconfig/freerdp2.pc
 %{_libdir}/pkgconfig/freerdp-client2.pc
 %{_libdir}/pkgconfig/freerdp-server2.pc
 %{_libdir}/pkgconfig/freerdp-shadow2.pc
-%{_libdir}/pkgconfig/rdtk2.pc
 %{_libdir}/pkgconfig/uwac0.pc
 
 %files server
@@ -239,15 +232,18 @@ find %{buildroot} -name "*.a" -delete
 %{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc README ChangeLog
-%{_libdir}/libwinpr.so.*
+%{_libdir}/libwinpr*.so.*
 
 %files -n libwinpr-devel
 %{_libdir}/cmake/WinPR2
 %{_includedir}/winpr2
-%{_libdir}/libwinpr.so
-%{_libdir}/pkgconfig/winpr2.pc
+%{_libdir}/libwinpr*.so
+%{_libdir}/pkgconfig/winpr*.pc
 
 %changelog
+* Fri May 20 2016 David Woodhouse <dwmw2@infradead.org> - 2:2.0.0-7.git.aeabb95
+- Update to latest sources, adjust set of exported libraries.
+
 * Thu Apr 21 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-6.git.ca2d015
 - Update to latest sources, adjust path of libraries.
 - Add OpenH264 conditional.
