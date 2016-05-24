@@ -8,9 +8,9 @@
 # %%global _with_x264 1
 # %%global _with_openh264 1
 
-Name:           freerdp
+Name:           freerdp2
 Version:        2.0.0
-Release:        6%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
+Release:        7%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -49,7 +49,7 @@ BuildRequires:  zlib-devel
 
 Provides:       xfreerdp = %{version}-%{release}
 Requires:       %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-Requires:       libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:       libwinpr2%{?_isa} = %{?epoch}:%{version}-%{release}
 
 %description
 The xfreerdp Remote Desktop Protocol (RDP) client from the FreeRDP project.
@@ -59,7 +59,7 @@ VirtualBox.
 
 %package        libs
 Summary:        Core libraries implementing the RDP protocol
-Requires:       libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:       libwinpr2%{?_isa} = %{?epoch}:%{version}-%{release}
 Obsoletes:      %{name}-plugins < 1:1.1.0
 Provides:       %{name}-plugins = %{?epoch}:%{version}-%{release}
 %description    libs
@@ -87,23 +87,23 @@ Summary:        Server support for %{name}
 The %{name}-server package contains servers which can export a desktop via
 the RDP protocol.
 
-%package -n     libwinpr
+%package -n     libwinpr2
 Summary:        Windows Portable Runtime
-Provides:       %{name}-libwinpr = %{?epoch}:%{version}-%{release}
-Obsoletes:      %{name}-libwinpr < %{?epoch}:%{version}-%{release}
+Provides:       %{name}-libwinpr2 = %{?epoch}:%{version}-%{release}
+Obsoletes:      %{name}-libwinpr2 < %{?epoch}:%{version}-%{release}
 
-%description -n libwinpr
+%description -n libwinpr2
 WinPR provides API compatibility for applications targeting non-Windows
 environments. When on Windows, the original native API is being used instead of
 the equivalent WinPR implementation, without having to modify the code using it.
 
-%package -n     libwinpr-devel
+%package -n     libwinpr2-devel
 Summary:        Windows Portable Runtime development files
-Requires:       libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:       libwinpr2%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:       pkgconfig
 Requires:       cmake >= 2.8
 
-%description -n libwinpr-devel
+%description -n libwinpr2-devel
 The %{name}-libwinpr-devel package contains libraries and header files for
 developing applications that use %{name}-libwinpr.
 
@@ -182,9 +182,9 @@ find %{buildroot} -name "*.a" -delete
 
 %postun libs -p /sbin/ldconfig
 
-%post -n libwinpr -p /sbin/ldconfig
+%post -n libwinpr2 -p /sbin/ldconfig
 
-%postun -n libwinpr -p /sbin/ldconfig
+%postun -n libwinpr2 -p /sbin/ldconfig
 
 %files
 %{_bindir}/winpr-hash
@@ -197,7 +197,7 @@ find %{buildroot} -name "*.a" -delete
 %{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc README ChangeLog
-%{_libdir}/%{name}2/
+%{_libdir}/freerdp2/
 %{_libdir}/libfreerdp-client.so.*
 %{_libdir}/libfreerdp-server.so.*
 %{_libdir}/libfreerdp-shadow.so.*
@@ -228,13 +228,13 @@ find %{buildroot} -name "*.a" -delete
 %files server
 %{_bindir}/freerdp-shadow-cli
 
-%files -n libwinpr
+%files -n libwinpr2
 %{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc README ChangeLog
 %{_libdir}/libwinpr*.so.*
 
-%files -n libwinpr-devel
+%files -n libwinpr2-devel
 %{_libdir}/cmake/WinPR2
 %{_includedir}/winpr2
 %{_libdir}/libwinpr*.so
