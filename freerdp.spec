@@ -10,7 +10,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        6%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
+Release:        7%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
