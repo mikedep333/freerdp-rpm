@@ -2,16 +2,17 @@
 %global date 20161006
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
-# Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg" and
-# "--with=x264" to mock/rpmbuild or by globally setting this:
+# Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
+# "--with=x264" or "--with=openh264" to mock/rpmbuild; or by globally setting
+# these variables:
 
-# %%global _with_ffmpeg 1
-# %%global _with_x264 1
-# %%global _with_openh264 1
+#global _with_ffmpeg 1
+#global _with_x264 1
+#global _with_openh264 1
 
 Name:           freerdp
 Version:        2.0.0
-Release:        13%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        14%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -120,31 +121,32 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \
     -DWITH_ALSA=ON \
     -DWITH_CUPS=ON \
-    -DWITH_CHANNELS=ON -DSTATIC_CHANNELS=OFF \
+    -DWITH_CHANNELS=ON -DBUILTIN_CHANNELS=OFF \
     -DWITH_CLIENT=ON \
     -DWITH_DIRECTFB=OFF \
-    %{?_with_ffmpeg:-DWITH_FFMPEG=ON} \
+    -DWITH_FFMPEG=%{?_with_ffmpeg:ON}%{?!_with_ffmpeg:OFF} \
     -DWITH_GSM=ON \
     -DWITH_GSTREAMER_1_0=ON \
     -DWITH_IPP=OFF \
     -DWITH_JPEG=ON \
     -DWITH_MANPAGES=ON \
-    %{?_with_openh264:-DWITH_OPENH264=ON} \
+    -DWITH_OPENH264=%{?_with_openh264:ON}%{?!_with_openh264:OFF} \
     -DWITH_OPENSSL=ON \
     -DWITH_PCSC=ON \
     -DWITH_PULSE=ON \
     -DWITH_SERVER=ON \
     -DWITH_WAYLAND=ON \
     -DWITH_X11=ON \
+    -DWITH_X264=%{?_with_x264:ON}%{?!_with_x264:OFF} \
     -DWITH_XCURSOR=ON \
     -DWITH_XEXT=ON \
     -DWITH_XKBFILE=ON \
     -DWITH_XI=ON \
     -DWITH_XINERAMA=ON \
     -DWITH_XRENDER=ON \
+    -DWITH_XTEST=OFF \
     -DWITH_XV=ON \
     -DWITH_ZLIB=ON \
-    %{?_with_x264:-DWITH_X264=ON} \
 %ifarch x86_64
     -DWITH_SSE2=ON \
 %else
@@ -243,6 +245,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr*.pc
 
 %changelog
+* Sat Oct 08 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-14.20161006git267dea9
+- Update build options.
+
 * Sat Oct 08 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-13.20160909git267dea9
 - Update to latest snapshot.
 
