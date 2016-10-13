@@ -12,7 +12,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        18%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        18%{?shortcommit0:.%{date}git%{shortcommit0}}.gfdl%{?dist}.1
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -26,12 +26,10 @@ BuildRequires:  cmake >= 2.8
 BuildRequires:  cups-devel
 %{?_with_ffmpeg:BuildRequires:  ffmpeg-devel}
 BuildRequires:  gsm-devel
-BuildRequires:  gstreamer1-devel
-BuildRequires:  gstreamer1-plugins-base-devel
+BuildRequires:  gstreamer-devel
+BuildRequires:  gstreamer-plugins-base-devel
 BuildRequires:  openssl-devel
 BuildRequires:  libjpeg-turbo-devel
-BuildRequires:  libwayland-client-devel
-BuildRequires:  libxkbcommon-devel
 BuildRequires:  libX11-devel
 BuildRequires:  libXcursor-devel
 BuildRequires:  libXdamage-devel
@@ -44,7 +42,6 @@ BuildRequires:  libXv-devel
 %{?_with_openh264:BuildRequires:  openh264-devel}
 BuildRequires:  pcsc-lite-devel
 BuildRequires:  pulseaudio-libs-devel
-BuildRequires:  systemd-devel
 %{?_with_x264:BuildRequires:  x264-devel}
 BuildRequires:  xmlto
 BuildRequires:  zlib-devel
@@ -126,7 +123,7 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_DIRECTFB=OFF \
     -DWITH_FFMPEG=%{?_with_ffmpeg:ON}%{?!_with_ffmpeg:OFF} \
     -DWITH_GSM=ON \
-    -DWITH_GSTREAMER_1_0=ON \
+    -DWITH_GSTREAMER_0_10=ON \
     -DWITH_IPP=OFF \
     -DWITH_JPEG=ON \
     -DWITH_MANPAGES=ON \
@@ -135,7 +132,6 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_PCSC=ON \
     -DWITH_PULSE=ON \
     -DWITH_SERVER=ON \
-    -DWITH_WAYLAND=ON \
     -DWITH_X11=ON \
     -DWITH_X264=%{?_with_x264:ON}%{?!_with_x264:OFF} \
     -DWITH_XCURSOR=ON \
@@ -192,7 +188,6 @@ find %{buildroot} -name "*.a" -delete
 %files
 %{_bindir}/winpr-hash
 %{_bindir}/winpr-makecert
-%{_bindir}/wlfreerdp
 %{_bindir}/xfreerdp
 %{_mandir}/man1/xfreerdp.*
 
@@ -206,28 +201,23 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/libfreerdp-shadow.so.*
 %{_libdir}/libfreerdp-shadow-subsystem.so.*
 %{_libdir}/libfreerdp.so.*
-%{_libdir}/libuwac.so.*
 %{_mandir}/man1/wlog.*
 
 %files devel
 %{_includedir}/freerdp2
-%{_includedir}/uwac0
 %{_libdir}/cmake/FreeRDP2
 %{_libdir}/cmake/FreeRDP-Client2
 %{_libdir}/cmake/FreeRDP-Server2
 %{_libdir}/cmake/FreeRDP-Shadow2
-%{_libdir}/cmake/uwac0
 %{_libdir}/libfreerdp-client.so
 %{_libdir}/libfreerdp-server.so
 %{_libdir}/libfreerdp-shadow.so
 %{_libdir}/libfreerdp-shadow-subsystem.so
 %{_libdir}/libfreerdp.so
-%{_libdir}/libuwac.so
 %{_libdir}/pkgconfig/freerdp2.pc
 %{_libdir}/pkgconfig/freerdp-client2.pc
 %{_libdir}/pkgconfig/freerdp-server2.pc
 %{_libdir}/pkgconfig/freerdp-shadow2.pc
-%{_libdir}/pkgconfig/uwac0.pc
 
 %files server
 %{_bindir}/freerdp-shadow-cli
@@ -245,6 +235,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr*.pc
 
 %changelog
+* Mon Nov 28 2016 Michael DePaulo - 2:2.0.0-18.20161128gite60d0d5.gfdl.1
+- Backport to EL6
+
 * Mon Nov 28 2016 Michael DePaulo - 2:2.0.0-18.20161128gite60d0d5
 - Update to latest snapshot.
 
