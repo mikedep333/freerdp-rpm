@@ -4,7 +4,7 @@
 
 Name:           freerdp
 Version:        1.2.0
-Release:        0.10%{?shortcommit:.git.%{shortcommit}}%{?dist}
+Release:        0.11%{?shortcommit:.git.%{shortcommit}}.gfdl%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 
@@ -26,8 +26,8 @@ BuildRequires:  alsa-lib-devel
 BuildRequires:  cmake >= 2.8
 BuildRequires:  cups-devel
 BuildRequires:  gsm-devel
-BuildRequires:  gstreamer1-devel
-BuildRequires:  gstreamer1-plugins-base-devel
+BuildRequires:  gstreamer-devel
+BuildRequires:  gstreamer-plugins-base-devel
 BuildRequires:  openssl-devel
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  libX11-devel
@@ -123,7 +123,7 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_DIRECTFB=OFF \
     -DWITH_FFMPEG=OFF \
     -DWITH_GSM=ON \
-    -DWITH_GSTREAMER_1_0=ON \
+    -DWITH_GSTREAMER_0_10=ON \
     -DWITH_IPP=OFF \
     -DWITH_JPEG=ON \
     -DWITH_OPENSSL=ON \
@@ -212,6 +212,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Thu Oct 13 2016 Michael DePaulo - 2:1.2.0-0.11.git.24a752a.gfdl
+- Backport to EL6
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:1.2.0-0.10.git.24a752a
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
