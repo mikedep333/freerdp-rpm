@@ -1,5 +1,5 @@
-%global commit0 267dea928c1ef65abdf937049c6cdca920ca2b0b
-%global date 20161006
+%global commit0 9adc13297bbe2cce8101fa8af3627f74c3f4a2c7
+%global date 20161014
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
@@ -12,7 +12,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        14%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        15%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -245,6 +245,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr*.pc
 
 %changelog
+* Fri Oct 14 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-15.20161014git9adc132
+- Update to latest snapshot.
+
 * Sat Oct 08 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-14.20161006git267dea9
 - Update build options.
 
