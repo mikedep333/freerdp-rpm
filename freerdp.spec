@@ -9,7 +9,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        5%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
+Release:        6%{?shortcommit0:.git.%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -23,11 +23,10 @@ BuildRequires:  cmake >= 2.8
 BuildRequires:  cups-devel
 %{?_with_ffmpeg:BuildRequires:  ffmpeg-devel}
 BuildRequires:  gsm-devel
-BuildRequires:  gstreamer1-devel
-BuildRequires:  gstreamer1-plugins-base-devel
+BuildRequires:  gstreamer-devel
+BuildRequires:  gstreamer-plugins-base-devel
 BuildRequires:  openssl-devel
 BuildRequires:  libjpeg-turbo-devel
-BuildRequires:  libwayland-client-devel
 BuildRequires:  libX11-devel
 BuildRequires:  libXcursor-devel
 BuildRequires:  libXdamage-devel
@@ -39,7 +38,6 @@ BuildRequires:  libXrandr-devel
 BuildRequires:  libXv-devel
 BuildRequires:  pcsc-lite-devel
 BuildRequires:  pulseaudio-libs-devel
-BuildRequires:  systemd-devel
 %{?_with_x264:BuildRequires:  x264-devel}
 BuildRequires:  xmlto
 BuildRequires:  zlib-devel
@@ -121,7 +119,7 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_DIRECTFB=OFF \
     %{?_with_ffmpeg:-DWITH_FFMPEG=ON} \
     -DWITH_GSM=ON \
-    -DWITH_GSTREAMER_1_0=ON \
+    -DWITH_GSTREAMER_0_10=ON \
     -DWITH_IPP=OFF \
     -DWITH_JPEG=ON \
     -DWITH_MANPAGES=ON \
@@ -129,7 +127,6 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_PCSC=ON \
     -DWITH_PULSE=ON \
     -DWITH_SERVER=ON \
-    -DWITH_WAYLAND=ON \
     -DWITH_X11=ON \
     -DWITH_XCURSOR=ON \
     -DWITH_XEXT=ON \
@@ -184,7 +181,6 @@ find %{buildroot} -name "*.a" -delete
 
 %files
 %{_bindir}/winpr-makecert
-%{_bindir}/wlfreerdp
 %{_bindir}/xfreerdp
 %{_mandir}/man1/xfreerdp.*
 
@@ -223,6 +219,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr.pc
 
 %changelog
+* Thu Oct 13 2016 Michael DePaulo <mikedep333@fedoraproject.org> - 2:2.0.0-6.git.b02943a
+- Backport to EL6
+
 * Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2:2.0.0-5.git.b02943a
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
