@@ -207,7 +207,7 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/libfreerdp-shadow-subsystem.so.*
 %{_libdir}/libfreerdp.so.*
 %{_libdir}/libuwac.so.*
-%{_mandir}/man1/wlog.*
+%{_mandir}/man7/wlog.*
 
 %files devel
 %{_includedir}/freerdp2
