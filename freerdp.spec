@@ -12,7 +12,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        19%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        20%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -245,6 +245,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr*.pc
 
 %changelog
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2:2.0.0-20.20161228git90877f5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Mon Jan 09 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-19.20161228git90877f5
 - Update to latest snapshot.
 
