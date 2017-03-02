@@ -12,7 +12,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        21%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        22%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -226,7 +226,6 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/libfreerdp-shadow2.so.*
 %{_libdir}/libfreerdp-shadow-subsystem2.so.*
 %{_libdir}/libfreerdp2.so.*
-%{_libdir}/libxfreerdp-client.so
 %{_libdir}/libuwac0.so.*
 %{_mandir}/man7/wlog.*
 
@@ -244,6 +243,7 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/libfreerdp-shadow-subsystem2.so
 %{_libdir}/libfreerdp2.so
 %{_libdir}/libuwac0.so
+%{_libdir}/libxfreerdp-client.so
 %{_libdir}/pkgconfig/freerdp2.pc
 %{_libdir}/pkgconfig/freerdp-client2.pc
 %{_libdir}/pkgconfig/freerdp-server2.pc
@@ -270,6 +270,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-22.20170302git210de68
+- Move libxfreerdp-client shared object into devel subpackage.
+
 * Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-21.20170302git210de68
 - Update to latest snapshot.
 - Update build requirements, tune build options.
