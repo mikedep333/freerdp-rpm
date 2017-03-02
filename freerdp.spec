@@ -1,5 +1,5 @@
-%global commit0 90877f5acb61bdba5bf5a3cc4e7f42f42b0c51a2
-%global date 20161228
+%global commit0 210de6833ceb5a97aa5a3755a647df45c04d8029
+%global date 20170302
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
@@ -12,7 +12,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        20%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        21%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -24,14 +24,9 @@ Patch0:         freerdp-aarch64.patch
 BuildRequires:  alsa-lib-devel
 BuildRequires:  cmake >= 2.8
 BuildRequires:  cups-devel
-%{?_with_ffmpeg:BuildRequires:  ffmpeg-devel}
 BuildRequires:  gsm-devel
-BuildRequires:  gstreamer1-devel
-BuildRequires:  gstreamer1-plugins-base-devel
 BuildRequires:  openssl-devel
 BuildRequires:  libjpeg-turbo-devel
-BuildRequires:  libwayland-client-devel
-BuildRequires:  libxkbcommon-devel
 BuildRequires:  libX11-devel
 BuildRequires:  libXcursor-devel
 BuildRequires:  libXdamage-devel
@@ -42,12 +37,33 @@ BuildRequires:  libxkbfile-devel
 BuildRequires:  libXrandr-devel
 BuildRequires:  libXv-devel
 %{?_with_openh264:BuildRequires:  openh264-devel}
-BuildRequires:  pcsc-lite-devel
-BuildRequires:  pulseaudio-libs-devel
-BuildRequires:  systemd-devel
 %{?_with_x264:BuildRequires:  x264-devel}
 BuildRequires:  xmlto
 BuildRequires:  zlib-devel
+
+BuildRequires:  pkgconfig(dbus-1)
+BuildRequires:  pkgconfig(dbus-glib-1)
+BuildRequires:  pkgconfig(glib-2.0)
+BuildRequires:  pkgconfig(gstreamer-1.0)
+BuildRequires:  pkgconfig(gstreamer-base-1.0)
+BuildRequires:  pkgconfig(gstreamer-app-1.0)
+BuildRequires:  pkgconfig(gstreamer-audio-1.0)
+BuildRequires:  pkgconfig(gstreamer-fft-1.0)
+BuildRequires:  pkgconfig(gstreamer-pbutils-1.0)
+BuildRequires:  pkgconfig(gstreamer-video-1.0)
+BuildRequires:  pkgconfig(krb5)
+BuildRequires:  pkgconfig(libpcsclite)
+BuildRequires:  pkgconfig(libpulse)
+BuildRequires:  pkgconfig(libsystemd)
+BuildRequires:  pkgconfig(openssl)
+BuildRequires:  pkgconfig(wayland-client)
+BuildRequires:  pkgconfig(wayland-scanner)
+BuildRequires:  pkgconfig(xkbcommon)
+
+%{?_with_ffmpeg:
+BuildRequires:  pkgconfig(libavcodec)
+BuildRequires:  pkgconfig(libavutil)
+}
 
 Provides:       xfreerdp = %{version}-%{release}
 Requires:       %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -115,6 +131,7 @@ developing applications that use %{name}-libwinpr.
 
 # Rpmlint fixes
 find . -name "*.h" -exec chmod 664 {} \;
+find . -name "*.c" -exec chmod 664 {} \;
 
 %build
 %cmake %{?_cmake_skip_rpath} \
@@ -122,19 +139,20 @@ find . -name "*.h" -exec chmod 664 {} \;
     -DWITH_ALSA=ON \
     -DWITH_CUPS=ON \
     -DWITH_CHANNELS=ON -DBUILTIN_CHANNELS=OFF \
-    -DWITH_CLIENT=ON \
+    -DWITH_CLIENT=ON -DWITH_CLIENT_INTERFACE=ON \
     -DWITH_DIRECTFB=OFF \
     -DWITH_FFMPEG=%{?_with_ffmpeg:ON}%{?!_with_ffmpeg:OFF} \
     -DWITH_GSM=ON \
-    -DWITH_GSTREAMER_1_0=ON \
+    -DWITH_GSTREAMER_1_0=ON -DWITH_GSTREAMER_0_10=OFF \
     -DWITH_IPP=OFF \
     -DWITH_JPEG=ON \
+    -DWITH_KRB5=ON \
     -DWITH_MANPAGES=ON \
     -DWITH_OPENH264=%{?_with_openh264:ON}%{?!_with_openh264:OFF} \
     -DWITH_OPENSSL=ON \
     -DWITH_PCSC=ON \
     -DWITH_PULSE=ON \
-    -DWITH_SERVER=ON \
+    -DWITH_SERVER=ON -DWITH_SERVER_INTERFACE=ON \
     -DWITH_WAYLAND=ON \
     -DWITH_X11=ON \
     -DWITH_X264=%{?_with_x264:ON}%{?!_with_x264:OFF} \
@@ -176,7 +194,7 @@ make %{?_smp_mflags}
 popd
 
 %install
-make install DESTDIR=%{buildroot} INSTALL='install -p'
+%make_install
 install -p -m 0755 winpr/tools/makecert-cli/winpr-makecert %{buildroot}%{_bindir}/
 
 find %{buildroot} -name "*.a" -delete
@@ -194,19 +212,22 @@ find %{buildroot} -name "*.a" -delete
 %{_bindir}/winpr-makecert
 %{_bindir}/wlfreerdp
 %{_bindir}/xfreerdp
-%{_mandir}/man1/xfreerdp.*
+%{_mandir}/man1/winpr-hash.1.*
+%{_mandir}/man1/winpr-makecert.1.*
+%{_mandir}/man1/wlfreerdp.1.*
+%{_mandir}/man1/xfreerdp.1.*
 
 %files libs
-%{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc README ChangeLog
-%{_libdir}/%{name}2/
-%{_libdir}/libfreerdp-client.so.*
-%{_libdir}/libfreerdp-server.so.*
-%{_libdir}/libfreerdp-shadow.so.*
-%{_libdir}/libfreerdp-shadow-subsystem.so.*
-%{_libdir}/libfreerdp.so.*
-%{_libdir}/libuwac.so.*
+%{_libdir}/freerdp2/
+%{_libdir}/libfreerdp-client2.so.*
+%{_libdir}/libfreerdp-server2.so.*
+%{_libdir}/libfreerdp-shadow2.so.*
+%{_libdir}/libfreerdp-shadow-subsystem2.so.*
+%{_libdir}/libfreerdp2.so.*
+%{_libdir}/libxfreerdp-client.so
+%{_libdir}/libuwac0.so.*
 %{_mandir}/man7/wlog.*
 
 %files devel
@@ -217,12 +238,12 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/cmake/FreeRDP-Server2
 %{_libdir}/cmake/FreeRDP-Shadow2
 %{_libdir}/cmake/uwac0
-%{_libdir}/libfreerdp-client.so
-%{_libdir}/libfreerdp-server.so
-%{_libdir}/libfreerdp-shadow.so
-%{_libdir}/libfreerdp-shadow-subsystem.so
-%{_libdir}/libfreerdp.so
-%{_libdir}/libuwac.so
+%{_libdir}/libfreerdp-client2.so
+%{_libdir}/libfreerdp-server2.so
+%{_libdir}/libfreerdp-shadow2.so
+%{_libdir}/libfreerdp-shadow-subsystem2.so
+%{_libdir}/libfreerdp2.so
+%{_libdir}/libuwac0.so
 %{_libdir}/pkgconfig/freerdp2.pc
 %{_libdir}/pkgconfig/freerdp-client2.pc
 %{_libdir}/pkgconfig/freerdp-server2.pc
@@ -231,20 +252,28 @@ find %{buildroot} -name "*.a" -delete
 
 %files server
 %{_bindir}/freerdp-shadow-cli
+%{_mandir}/man1/freerdp-shadow-cli.1.*
 
 %files -n libwinpr
 %{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc README ChangeLog
-%{_libdir}/libwinpr*.so.*
+%{_libdir}/libwinpr2.so.*
+%{_libdir}/libwinpr-tools2.so.*
 
 %files -n libwinpr-devel
 %{_libdir}/cmake/WinPR2
 %{_includedir}/winpr2
-%{_libdir}/libwinpr*.so
-%{_libdir}/pkgconfig/winpr*.pc
+%{_libdir}/libwinpr2.so
+%{_libdir}/libwinpr-tools2.so
+%{_libdir}/pkgconfig/winpr2.pc
+%{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-21.20170302git210de68
+- Update to latest snapshot.
+- Update build requirements, tune build options.
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2:2.0.0-20.20161228git90877f5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
