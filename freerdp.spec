@@ -12,7 +12,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        22%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        23%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -139,7 +139,7 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_ALSA=ON \
     -DWITH_CUPS=ON \
     -DWITH_CHANNELS=ON -DBUILTIN_CHANNELS=OFF \
-    -DWITH_CLIENT=ON -DWITH_CLIENT_INTERFACE=ON \
+    -DWITH_CLIENT=ON \
     -DWITH_DIRECTFB=OFF \
     -DWITH_FFMPEG=%{?_with_ffmpeg:ON}%{?!_with_ffmpeg:OFF} \
     -DWITH_GSM=ON \
@@ -243,7 +243,6 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/libfreerdp-shadow-subsystem2.so
 %{_libdir}/libfreerdp2.so
 %{_libdir}/libuwac0.so
-%{_libdir}/libxfreerdp-client.so
 %{_libdir}/pkgconfig/freerdp2.pc
 %{_libdir}/pkgconfig/freerdp-client2.pc
 %{_libdir}/pkgconfig/freerdp-server2.pc
@@ -270,6 +269,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Mon Mar 06 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-23.20170302git210de68
+- Remove shared libxfreerdp-client shared library.
+
 * Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-22.20170302git210de68
 - Move libxfreerdp-client shared object into devel subpackage.
 
