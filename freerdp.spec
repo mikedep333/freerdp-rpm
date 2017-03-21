@@ -182,9 +182,6 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DARM_FP_ABI=soft \
     -DWITH_NEON=OFF \
 %endif
-%ifarch aarch64
-    -DWITH_SSE2=OFF \
-%endif
     .
 
 make %{?_smp_mflags}
