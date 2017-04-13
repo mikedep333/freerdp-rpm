@@ -12,7 +12,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        24%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        25%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -192,7 +192,7 @@ popd
 
 %install
 %make_install
-install -p -m 0755 winpr/tools/makecert-cli/winpr-makecert %{buildroot}%{_bindir}/
+%make_install COMPONENT=tools
 
 find %{buildroot} -name "*.a" -delete
 
@@ -266,6 +266,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Thu Apr 13 2017 Orion Poplawski <orion@cora.nwra.com> - 2:2.0.0-25.20170317git8c68761
+- Install tools via make install
+
 * Wed Mar 22 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-24.20170317git8c68761
 - Update to latest snapshot.
 
