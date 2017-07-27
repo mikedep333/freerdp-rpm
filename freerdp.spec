@@ -144,6 +144,7 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_FFMPEG=%{?_with_ffmpeg:ON}%{?!_with_ffmpeg:OFF} \
     -DWITH_GSM=ON \
     -DWITH_GSTREAMER_1_0=ON -DWITH_GSTREAMER_0_10=OFF \
+    -DGSTREAMER_1_0_INCLUDE_DIRS=%{_includedir}/gstreamer-1.0 \
     -DWITH_IPP=OFF \
     -DWITH_JPEG=ON \
     -DWITH_KRB5=ON \
