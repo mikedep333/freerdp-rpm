@@ -1,5 +1,5 @@
-%global commit0 f580bea738a69edc38c807790ae7c216cca946e1
-%global date 20170710
+%global commit0 f8c9f438436a4492e37011396148d804f7e3651f
+%global date 20170724
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
@@ -12,7 +12,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        30%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        31%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -266,6 +266,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Thu Jul 27 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-31.20170724gitf8c9f43
+- Update to latest snapshot, Talos security fixes.
+
 * Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2:2.0.0-30.20170710gitf580bea
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
