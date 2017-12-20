@@ -1,5 +1,5 @@
-%global commit0 3b8352690e5ff1ab34357a2df2b6e22423bcea38
-%global date 20170831
+%global commit0 bfe8359b5b502087255615c48219a81a4151d630
+%global date 20171220
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
@@ -12,7 +12,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        34%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        35%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -51,7 +51,7 @@ BuildRequires:  pkgconfig(gstreamer-audio-1.0)
 BuildRequires:  pkgconfig(gstreamer-fft-1.0)
 BuildRequires:  pkgconfig(gstreamer-pbutils-1.0)
 BuildRequires:  pkgconfig(gstreamer-video-1.0)
-BuildRequires:  pkgconfig(krb5)
+BuildRequires:  pkgconfig(krb5) >= 1.13
 BuildRequires:  pkgconfig(libpcsclite)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:  pkgconfig(libsystemd)
@@ -143,11 +143,11 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_DIRECTFB=OFF \
     -DWITH_FFMPEG=%{?_with_ffmpeg:ON}%{?!_with_ffmpeg:OFF} \
     -DWITH_GSM=ON \
+    -DWITH_GSSAPI=ON \
     -DWITH_GSTREAMER_1_0=ON -DWITH_GSTREAMER_0_10=OFF \
     -DGSTREAMER_1_0_INCLUDE_DIRS=%{_includedir}/gstreamer-1.0 \
     -DWITH_IPP=OFF \
     -DWITH_JPEG=ON \
-    -DWITH_KRB5=ON \
     -DWITH_MANPAGES=ON \
     -DWITH_OPENH264=%{?_with_openh264:ON}%{?!_with_openh264:OFF} \
     -DWITH_OPENSSL=ON \
@@ -267,6 +267,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Wed Dec 20 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-35.20171220gitbfe8359
+- Update to latest snapshot post 2.0.0rc1.
+
 * Mon Sep 11 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-34.20170831git3b83526
 - Update to latest snapshot.
 - Trim changelog.
