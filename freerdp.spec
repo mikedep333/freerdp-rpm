@@ -11,6 +11,7 @@
 #global _with_openh264 1
 
 # Momentarily disable GSS support
+# https://github.com/FreeRDP/FreeRDP/issues/4348
 #global _with_gss 1
 
 Name:           freerdp
