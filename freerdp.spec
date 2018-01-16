@@ -10,6 +10,9 @@
 #global _with_x264 1
 #global _with_openh264 1
 
+# Momentarily disable GSS support
+#global _with_gss 1
+
 Name:           freerdp
 Version:        2.0.0
 Release:        36%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
@@ -51,7 +54,7 @@ BuildRequires:  pkgconfig(gstreamer-audio-1.0)
 BuildRequires:  pkgconfig(gstreamer-fft-1.0)
 BuildRequires:  pkgconfig(gstreamer-pbutils-1.0)
 BuildRequires:  pkgconfig(gstreamer-video-1.0)
-BuildRequires:  pkgconfig(krb5) >= 1.13
+%{?_with_gss:BuildRequires:  pkgconfig(krb5) >= 1.13}
 BuildRequires:  pkgconfig(libpcsclite)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:  pkgconfig(libsystemd)
@@ -143,7 +146,7 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_DIRECTFB=OFF \
     -DWITH_FFMPEG=%{?_with_ffmpeg:ON}%{?!_with_ffmpeg:OFF} \
     -DWITH_GSM=ON \
-    -DWITH_GSSAPI=ON \
+    -DWITH_GSSAPI=%{?_with_gss:ON}%{?!_with_gss:OFF} \
     -DWITH_GSTREAMER_1_0=ON -DWITH_GSTREAMER_0_10=OFF \
     -DGSTREAMER_1_0_INCLUDE_DIRS=%{_includedir}/gstreamer-1.0 \
     -DWITH_IPP=OFF \
@@ -269,6 +272,8 @@ find %{buildroot} -name "*.a" -delete
 %changelog
 * Tue Jan 16 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-36.20180115git8f52c7e
 - Update to latest snapshot.
+- Make GSS support optional and disable it for now (#1534094 and FreeRDP #4348,
+  #1435, #4363).
 
 * Wed Dec 20 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-35.20171220gitbfe8359
 - Update to latest snapshot post 2.0.0rc1.
@@ -322,46 +327,3 @@ find %{buildroot} -name "*.a" -delete
 
 * Mon Jan 09 2017 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-19.20161228git90877f5
 - Update to latest snapshot.
-
-* Sat Dec 03 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-18.20161202gitd72ff5d
-- Update to latest snapshot.
-
-* Fri Nov 04 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-17.20161103gitea24c1f
-- Update to latest snapshot.
-
-* Thu Oct 20 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-16.20161020gita6f4117
-- Update to latest snapshot.
-
-* Fri Oct 14 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-15.20161014git9adc132
-- Update to latest snapshot.
-
-* Sat Oct 08 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-14.20161006git267dea9
-- Update build options.
-
-* Sat Oct 08 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-13.20160909git267dea9
-- Update to latest snapshot.
-
-* Tue Sep 20 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-12.20160909git1855e36
-- Update to latest snapshot, update release to follow packaging guidelines.
-
-* Fri Aug 12 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-11.git.5b2455f
-- Update to latest snapshot.
-
-* Tue Jun 21 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-10.git.e86f7c2
-- Update to latest sources.
-
-* Tue Jun 07 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-9.git.aa15327
-- Update to latest sources.
-
-* Tue May 24 2016 David Woodhouse <dwmw2@infradead.org> - 2:2.0.0-8.git.53de4b8
-- Update to latest sources
-
-* Fri May 20 2016 David Woodhouse <dwmw2@infradead.org> - 2:2.0.0-7.git.aeabb95
-- Update to latest sources, adjust set of exported libraries.
-
-* Thu Apr 21 2016 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-6.git.ca2d015
-- Update to latest sources, adjust path of libraries.
-- Add OpenH264 conditional.
-
-* Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2:2.0.0-5.git.b02943a
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
