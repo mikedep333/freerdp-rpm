@@ -16,7 +16,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        36%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        37%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -59,7 +59,7 @@ BuildRequires:  pkgconfig(gstreamer-video-1.0)
 BuildRequires:  pkgconfig(libpcsclite)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:  pkgconfig(libsystemd)
-BuildRequires:  pkgconfig(openssl)
+BuildRequires:  pkgconfig(openssl) >= 1.1.0
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-scanner)
 BuildRequires:  pkgconfig(xkbcommon)
@@ -271,6 +271,10 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Thu Jan 18 2018 Karsten Hopp <karsten@redhat.com> - 2.0.0-37git}
+- use versioned build requirement on pkgconfig(openssl) to prevent using
+  compat-openssl10-devel instead of openssl-devel
+
 * Tue Jan 16 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-36.20180115git8f52c7e
 - Update to latest snapshot.
 - Make GSS support optional and disable it for now (#1534094 and FreeRDP #4348,
