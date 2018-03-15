@@ -29,7 +29,6 @@ BuildRequires:  alsa-lib-devel
 BuildRequires:  cmake >= 2.8
 BuildRequires:  cups-devel
 BuildRequires:  gsm-devel
-BuildRequires:  openssl-devel
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  libX11-devel
 BuildRequires:  libXcursor-devel
