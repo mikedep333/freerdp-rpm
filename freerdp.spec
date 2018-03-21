@@ -1,5 +1,5 @@
-%global commit0 f8baeb72470f3ada14fdf6f8a13b67543340621b
-%global date 20180314
+%global commit0 de83f4df2114d2a9924579498a20efb69edea5cd
+%global date 20180320
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
@@ -16,7 +16,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        39%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        40%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -41,6 +41,7 @@ BuildRequires:  libXrandr-devel
 BuildRequires:  libXv-devel
 %{?_with_openh264:BuildRequires:  openh264-devel}
 %{?_with_x264:BuildRequires:  x264-devel}
+BuildRequires:  pam-devel
 BuildRequires:  xmlto
 BuildRequires:  zlib-devel
 
@@ -157,6 +158,7 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_PCSC=ON \
     -DWITH_PULSE=ON \
     -DWITH_SERVER=ON -DWITH_SERVER_INTERFACE=ON \
+    -DWITH_SHADOW_X11=ON -DWITH_SHADOW_MAC=ON \
     -DWITH_WAYLAND=ON \
     -DWITH_X11=ON \
     -DWITH_X264=%{?_with_x264:ON}%{?!_with_x264:OFF} \
@@ -270,6 +272,10 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Wed Mar 21 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-40.20180320gitde83f4d
+- Add PAM support (fixes freerdp-shadow-cli). Thanks Paolo Zeppegno.
+- Update to latest snapshot.
+
 * Thu Mar 15 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-39.20180314gitf8baeb7
 - Update to latest snapshot.
 - Fixes connection to RDP servers with the latest Microsoft patches:
