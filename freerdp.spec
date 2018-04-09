@@ -1,5 +1,5 @@
-%global commit0 de83f4df2114d2a9924579498a20efb69edea5cd
-%global date 20180320
+%global commit0 a9ecd6a6ccc71130805a6bf3214c169fc42746ba
+%global date 20180405
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
@@ -16,7 +16,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        40%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        41%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -272,6 +272,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Mon Apr 09 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-41.20180405gita9ecd6a
+- Update to latest snapshot.
+
 * Wed Mar 21 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-40.20180320gitde83f4d
 - Add PAM support (fixes freerdp-shadow-cli). Thanks Paolo Zeppegno.
 - Update to latest snapshot.
