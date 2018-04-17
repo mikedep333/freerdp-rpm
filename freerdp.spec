@@ -16,7 +16,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        41%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}
+Release:        41%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}.1
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -59,7 +59,7 @@ BuildRequires:  pkgconfig(gstreamer-video-1.0)
 BuildRequires:  pkgconfig(libpcsclite)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:  pkgconfig(libsystemd)
-BuildRequires:  pkgconfig(openssl) >= 1.1.0
+BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-scanner)
 BuildRequires:  pkgconfig(xkbcommon)
@@ -272,6 +272,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Mon Apr 16 2018 Mike DePaulo (GFDL) - 2:2.0.0-41.20180405gita9ecd6a.1
+- Fix build on EL7 by reverting "use versioned build requirement on pkgconfig(openssl)"
+
 * Mon Apr 09 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-41.20180405gita9ecd6a
 - Update to latest snapshot.
 
