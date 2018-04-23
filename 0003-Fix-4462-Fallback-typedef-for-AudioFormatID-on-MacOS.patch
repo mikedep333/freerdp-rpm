@@ -1,0 +1,31 @@
+From 65a82e9cdcd77e9ea5e78146eb412419970557c3 Mon Sep 17 00:00:00 2001
+From: Armin Novak <armin.novak@thincast.com>
+Date: Fri, 16 Mar 2018 11:42:06 +0100
+Subject: [PATCH 03/13] Fix #4462: Fallback typedef for AudioFormatID on MacOS
+ < 10.10
+
+---
+ channels/audin/client/mac/audin_mac.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/channels/audin/client/mac/audin_mac.c b/channels/audin/client/mac/audin_mac.c
+index 5a18ca2..2fee270 100644
+--- a/channels/audin/client/mac/audin_mac.c
++++ b/channels/audin/client/mac/audin_mac.c
+@@ -49,6 +49,13 @@
+ #define MAC_AUDIO_QUEUE_NUM_BUFFERS     100
+ #define MAC_AUDIO_QUEUE_BUFFER_SIZE     32768
+ 
++/* Fix for #4462: Provide type alias if not declared (Mac OS < 10.10)
++ * https://developer.apple.com/documentation/coreaudio/audioformatid
++ */
++#ifndef AudioFormatID
++typedef UInt32 AudioFormatID;
++#endif
++
+ typedef struct _AudinMacDevice
+ {
+ 	IAudinDevice iface;
+-- 
+1.8.3.1
+

@@ -1,0 +1,44 @@
+From 8758638c2a7457319fc1e76a7472b8ef5b865c1e Mon Sep 17 00:00:00 2001
+From: Armin Novak <armin.novak@thincast.com>
+Date: Mon, 16 Apr 2018 10:22:24 +0200
+Subject: [PATCH 13/13] Ensure audin channel uses supported protocol version 1.
+
+---
+ channels/audin/client/audin_main.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/channels/audin/client/audin_main.c b/channels/audin/client/audin_main.c
+index ffda002..31691c2 100644
+--- a/channels/audin/client/audin_main.c
++++ b/channels/audin/client/audin_main.c
+@@ -135,14 +135,15 @@ static UINT audin_channel_write_and_free(AUDIN_CHANNEL_CALLBACK* callback, wStre
+ static UINT audin_process_version(IWTSVirtualChannelCallback* pChannelCallback, wStream* s)
+ {
+ 	wStream* out;
+-	UINT32 Version;
++	const UINT32 ClientVersion = 0x01;
++	UINT32 ServerVersion;
+ 	AUDIN_CHANNEL_CALLBACK* callback = (AUDIN_CHANNEL_CALLBACK*) pChannelCallback;
+ 
+ 	if (Stream_GetRemainingLength(s) < 4)
+ 		return ERROR_INVALID_DATA;
+ 
+-	Stream_Read_UINT32(s, Version);
+-	DEBUG_DVC("Version=%"PRIu32"", Version);
++	Stream_Read_UINT32(s, ServerVersion);
++	DEBUG_DVC("ServerVersion=%"PRIu32", ClientVersion=%"PRIu32, ServerVersion, ClientVersion);
+ 	out = Stream_New(NULL, 5);
+ 
+ 	if (!out)
+@@ -152,7 +153,7 @@ static UINT audin_process_version(IWTSVirtualChannelCallback* pChannelCallback,
+ 	}
+ 
+ 	Stream_Write_UINT8(out, MSG_SNDIN_VERSION);
+-	Stream_Write_UINT32(out, Version);
++	Stream_Write_UINT32(out, ClientVersion);
+ 	return audin_channel_write_and_free(callback, out, TRUE);
+ }
+ 
+-- 
+1.8.3.1
+

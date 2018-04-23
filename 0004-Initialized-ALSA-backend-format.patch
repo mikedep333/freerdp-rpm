@@ -1,0 +1,24 @@
+From ec5dab973fdeb6a86427b1cbc9f6c768f1124e48 Mon Sep 17 00:00:00 2001
+From: Armin Novak <armin.novak@thincast.com>
+Date: Tue, 20 Mar 2018 15:07:00 +0100
+Subject: [PATCH 04/13] Initialized ALSA backend format.
+
+---
+ channels/rdpsnd/client/alsa/rdpsnd_alsa.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/channels/rdpsnd/client/alsa/rdpsnd_alsa.c b/channels/rdpsnd/client/alsa/rdpsnd_alsa.c
+index 7ef65df..d513897 100644
+--- a/channels/rdpsnd/client/alsa/rdpsnd_alsa.c
++++ b/channels/rdpsnd/client/alsa/rdpsnd_alsa.c
+@@ -186,6 +186,7 @@ static BOOL rdpsnd_alsa_set_format(rdpsndDevicePlugin* device, const AUDIO_FORMA
+ 
+ 	if (format)
+ 	{
++		alsa->aformat = *format;
+ 		alsa->actual_rate = format->nSamplesPerSec;
+ 		alsa->actual_channels = format->nChannels;
+ 
+-- 
+1.8.3.1
+

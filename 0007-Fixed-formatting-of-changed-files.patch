@@ -1,0 +1,1526 @@
+From 3f712cab700f5073ad0044a0ef8d421802496372 Mon Sep 17 00:00:00 2001
+From: Armin Novak <armin.novak@thincast.com>
+Date: Tue, 3 Apr 2018 11:18:22 +0200
+Subject: [PATCH 07/13] Fixed formatting of changed files.
+
+---
+ channels/audin/client/audin_main.c               |    3 +-
+ channels/audin/client/opensles/audin_opensl_es.c |    2 +-
+ channels/audin/client/winmm/audin_winmm.c        | 1004 +++++++++++-----------
+ channels/rdpsnd/client/alsa/rdpsnd_alsa.c        |    5 +-
+ channels/rdpsnd/client/ios/rdpsnd_ios.c          |   79 +-
+ channels/rdpsnd/client/mac/rdpsnd_mac.c          |    8 +-
+ channels/rdpsnd/client/pulse/rdpsnd_pulse.c      |    1 -
+ channels/rdpsnd/client/rdpsnd_main.c             |    4 +-
+ channels/rdpsnd/client/winmm/rdpsnd_winmm.c      |    1 -
+ channels/rdpsnd/server/rdpsnd_main.c             |    3 +-
+ include/freerdp/client/rdpsnd.h                  |    2 +-
+ libfreerdp/codec/dsp.c                           |    4 +-
+ libfreerdp/codec/dsp_ffmpeg.c                    |    8 +-
+ server/shadow/shadow_audin.c                     |    9 +-
+ 14 files changed, 564 insertions(+), 569 deletions(-)
+
+diff --git a/channels/audin/client/audin_main.c b/channels/audin/client/audin_main.c
+index e2eab06..ffda002 100644
+--- a/channels/audin/client/audin_main.c
++++ b/channels/audin/client/audin_main.c
+@@ -403,9 +403,8 @@ static BOOL audin_open_device(AUDIN_PLUGIN* audin, AUDIN_CHANNEL_CALLBACK* callb
+ 
+ 	format = *audin->format;
+ 	supported = IFCALLRESULT(FALSE, audin->device->FormatSupported, audin->device, &format);
+-
+ 	WLog_DBG(TAG, "microphone uses %s codec",
+-		rdpsnd_get_audio_tag_string(format.wFormatTag));
++	         rdpsnd_get_audio_tag_string(format.wFormatTag));
+ 
+ 	if (!supported)
+ 	{
+diff --git a/channels/audin/client/opensles/audin_opensl_es.c b/channels/audin/client/opensles/audin_opensl_es.c
+index 760c748..0480889 100644
+--- a/channels/audin/client/opensles/audin_opensl_es.c
++++ b/channels/audin/client/opensles/audin_opensl_es.c
+@@ -286,7 +286,7 @@ static UINT audin_opensles_open(IAudinDevice* device, AudinReceive receive,
+ 	}
+ 
+ 	if (!(opensles->thread = CreateThread(NULL, 0,
+-		audin_opensles_thread_func, opensles, 0, NULL)))
++	                                      audin_opensles_thread_func, opensles, 0, NULL)))
+ 	{
+ 		WLog_ERR(TAG, "CreateThread failed!");
+ 		goto error_out;
+diff --git a/channels/audin/client/winmm/audin_winmm.c b/channels/audin/client/winmm/audin_winmm.c
+index b3a49a4..d878b16 100644
+--- a/channels/audin/client/winmm/audin_winmm.c
++++ b/channels/audin/client/winmm/audin_winmm.c
+@@ -1,502 +1,502 @@
+-/**
+- * FreeRDP: A Remote Desktop Protocol Implementation
+- * Audio Input Redirection Virtual Channel - WinMM implementation
+- *
+- * Copyright 2013 Zhang Zhaolong <zhangzl2013@126.com>
+- * Copyright 2015 Thincast Technologies GmbH
+- * Copyright 2015 DI (FH) Martin Haimberger <martin.haimberger@thincast.com>
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *     http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-#ifdef HAVE_CONFIG_H
+-#include "config.h"
+-#endif
+-
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <string.h>
+-
+-#include <Windows.h>
+-#include <MMSystem.h>
+-
+-#include <winpr/crt.h>
+-#include <winpr/cmdline.h>
+-#include <freerdp/addin.h>
+-#include <freerdp/client/audin.h>
+-
+-#include "audin_main.h"
+-
+-typedef struct _AudinWinmmDevice
+-{
+-	IAudinDevice iface;
+-
+-	char* device_name;
+-	AudinReceive receive;
+-	void* user_data;
+-	HANDLE thread;
+-	HANDLE stopEvent;
+-	HWAVEIN hWaveIn;
+-	PWAVEFORMATEX* ppwfx;
+-	PWAVEFORMATEX pwfx_cur;
+-	UINT32 ppwfx_size;
+-	UINT32 cFormats;
+-	UINT32 frames_per_packet;
+-	rdpContext* rdpcontext;
+-} AudinWinmmDevice;
+-
+-static void CALLBACK waveInProc(HWAVEIN hWaveIn, UINT uMsg, DWORD_PTR dwInstance,
+-                                DWORD_PTR dwParam1, DWORD_PTR dwParam2)
+-{
+-	AudinWinmmDevice* winmm = (AudinWinmmDevice*) dwInstance;
+-	PWAVEHDR pWaveHdr;
+-	UINT error = CHANNEL_RC_OK;
+-	MMRESULT mmResult;
+-
+-	switch (uMsg)
+-	{
+-		case WIM_CLOSE:
+-			break;
+-
+-		case WIM_DATA:
+-			pWaveHdr = (WAVEHDR*)dwParam1;
+-
+-			if (WHDR_DONE == (WHDR_DONE & pWaveHdr->dwFlags))
+-			{
+-				if (pWaveHdr->dwBytesRecorded
+-				    && !(WaitForSingleObject(winmm->stopEvent, 0) == WAIT_OBJECT_0))
+-				{
+-					AUDIO_FORMAT format;
+-					format.cbSize = winmm->pwfx_cur->cbSize;
+-					format.nBlockAlign = winmm->pwfx_cur->nBlockAlign;
+-					format.nAvgBytesPerSec = winmm->pwfx_cur->nAvgBytesPerSec;
+-					format.nChannels = winmm->pwfx_cur->nChannels;
+-					format.nSamplesPerSec = winmm->pwfx_cur->nSamplesPerSec;
+-					format.wBitsPerSample = winmm->pwfx_cur->wBitsPerSample;
+-					format.wFormatTag = winmm->pwfx_cur->wFormatTag;
+-
+-					if ((error = winmm->receive(&format, pWaveHdr->lpData, pWaveHdr->dwBytesRecorded,
+-					                            winmm->user_data)))
+-						break;
+-
+-					mmResult = waveInAddBuffer(hWaveIn, pWaveHdr, sizeof(WAVEHDR));
+-
+-					if (mmResult != MMSYSERR_NOERROR)
+-						error = ERROR_INTERNAL_ERROR;
+-				}
+-			}
+-
+-			break;
+-
+-		case WIM_OPEN:
+-			break;
+-
+-		default:
+-			break;
+-	}
+-
+-	if (error && winmm->rdpcontext)
+-		setChannelError(winmm->rdpcontext, error, "waveInProc reported an error");
+-}
+-
+-static DWORD WINAPI audin_winmm_thread_func(LPVOID arg)
+-{
+-	AudinWinmmDevice* winmm = (AudinWinmmDevice*) arg;
+-	char* buffer;
+-	int size, i;
+-	WAVEHDR waveHdr[4];
+-	DWORD status;
+-	MMRESULT rc;
+-
+-	if (!winmm->hWaveIn)
+-	{
+-		if (MMSYSERR_NOERROR != waveInOpen(&winmm->hWaveIn, WAVE_MAPPER, winmm->pwfx_cur,
+-		                                   (DWORD_PTR)waveInProc, (DWORD_PTR)winmm, CALLBACK_FUNCTION))
+-		{
+-			if (winmm->rdpcontext)
+-				setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
+-				                "audin_winmm_thread_func reported an error");
+-
+-			return ERROR_INTERNAL_ERROR;
+-		}
+-	}
+-
+-	size = (winmm->pwfx_cur->wBitsPerSample * winmm->pwfx_cur->nChannels * winmm->frames_per_packet +
+-	        7) / 8;
+-
+-	for (i = 0; i < 4; i++)
+-	{
+-		buffer = (char*) malloc(size);
+-
+-		if (!buffer)
+-			return CHANNEL_RC_NO_MEMORY;
+-
+-		waveHdr[i].dwBufferLength = size;
+-		waveHdr[i].dwFlags = 0;
+-		waveHdr[i].lpData = buffer;
+-		rc = waveInPrepareHeader(winmm->hWaveIn, &waveHdr[i], sizeof(waveHdr[i]));
+-
+-		if (MMSYSERR_NOERROR != rc)
+-		{
+-			DEBUG_DVC("waveInPrepareHeader failed. %"PRIu32"", rc);
+-
+-			if (winmm->rdpcontext)
+-				setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
+-				                "audin_winmm_thread_func reported an error");
+-		}
+-
+-		rc = waveInAddBuffer(winmm->hWaveIn, &waveHdr[i], sizeof(waveHdr[i]));
+-
+-		if (MMSYSERR_NOERROR != rc)
+-		{
+-			DEBUG_DVC("waveInAddBuffer failed. %"PRIu32"", rc);
+-
+-			if (winmm->rdpcontext)
+-				setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
+-				                "audin_winmm_thread_func reported an error");
+-		}
+-	}
+-
+-	rc = waveInStart(winmm->hWaveIn);
+-
+-	if (MMSYSERR_NOERROR != rc)
+-	{
+-		DEBUG_DVC("waveInStart failed. %"PRIu32"", rc);
+-
+-		if (winmm->rdpcontext)
+-			setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
+-			                "audin_winmm_thread_func reported an error");
+-	}
+-
+-	status = WaitForSingleObject(winmm->stopEvent, INFINITE);
+-
+-	if (status == WAIT_FAILED)
+-	{
+-		DEBUG_DVC("WaitForSingleObject failed.");
+-
+-		if (winmm->rdpcontext)
+-			setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
+-			                "audin_winmm_thread_func reported an error");
+-	}
+-
+-	rc = waveInReset(winmm->hWaveIn);
+-
+-	if (MMSYSERR_NOERROR != rc)
+-	{
+-		DEBUG_DVC("waveInReset failed. %"PRIu32"", rc);
+-
+-		if (winmm->rdpcontext)
+-			setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
+-			                "audin_winmm_thread_func reported an error");
+-	}
+-
+-	for (i = 0; i < 4; i++)
+-	{
+-		rc = waveInUnprepareHeader(winmm->hWaveIn, &waveHdr[i], sizeof(waveHdr[i]));
+-
+-		if (MMSYSERR_NOERROR != rc)
+-		{
+-			DEBUG_DVC("waveInUnprepareHeader failed. %"PRIu32"", rc);
+-
+-			if (winmm->rdpcontext)
+-				setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
+-				                "audin_winmm_thread_func reported an error");
+-		}
+-
+-		free(waveHdr[i].lpData);
+-	}
+-
+-	rc = waveInClose(winmm->hWaveIn);
+-
+-	if (MMSYSERR_NOERROR != rc)
+-	{
+-		DEBUG_DVC("waveInClose failed. %"PRIu32"", rc);
+-
+-		if (winmm->rdpcontext)
+-			setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
+-			                "audin_winmm_thread_func reported an error");
+-	}
+-
+-	winmm->hWaveIn = NULL;
+-	return 0;
+-}
+-
+-/**
+- * Function description
+- *
+- * @return 0 on success, otherwise a Win32 error code
+- */
+-static UINT audin_winmm_free(IAudinDevice* device)
+-{
+-	UINT32 i;
+-	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
+-
+-	for (i = 0; i < winmm->cFormats; i++)
+-	{
+-		free(winmm->ppwfx[i]);
+-	}
+-
+-	free(winmm->ppwfx);
+-	free(winmm->device_name);
+-	free(winmm);
+-	return CHANNEL_RC_OK;
+-}
+-
+-/**
+- * Function description
+- *
+- * @return 0 on success, otherwise a Win32 error code
+- */
+-static UINT audin_winmm_close(IAudinDevice* device)
+-{
+-	DWORD status;
+-	UINT error = CHANNEL_RC_OK;
+-	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
+-	SetEvent(winmm->stopEvent);
+-	status = WaitForSingleObject(winmm->thread, INFINITE);
+-
+-	if (status == WAIT_FAILED)
+-	{
+-		error = GetLastError();
+-		WLog_ERR(TAG, "WaitForSingleObject failed with error %"PRIu32"!", error);
+-		return error;
+-	}
+-
+-	CloseHandle(winmm->thread);
+-	CloseHandle(winmm->stopEvent);
+-	winmm->thread = NULL;
+-	winmm->stopEvent = NULL;
+-	winmm->receive = NULL;
+-	winmm->user_data = NULL;
+-	return error;
+-}
+-
+-/**
+- * Function description
+- *
+- * @return 0 on success, otherwise a Win32 error code
+- */
+-static UINT audin_winmm_set_format(IAudinDevice* device, const AUDIO_FORMAT* format,
+-                                   UINT32 FramesPerPacket)
+-{
+-	UINT32 i;
+-	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
+-	winmm->frames_per_packet = FramesPerPacket;
+-
+-	for (i = 0; i < winmm->cFormats; i++)
+-	{
+-		if (winmm->ppwfx[i]->wFormatTag == format->wFormatTag
+-		    && winmm->ppwfx[i]->nChannels == format->nChannels
+-		    && winmm->ppwfx[i]->wBitsPerSample == format->wBitsPerSample)
+-		{
+-			winmm->pwfx_cur = winmm->ppwfx[i];
+-			break;
+-		}
+-	}
+-
+-	return CHANNEL_RC_OK;
+-}
+-
+-static BOOL audin_winmm_format_supported(IAudinDevice* device, const AUDIO_FORMAT* format)
+-{
+-	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
+-	PWAVEFORMATEX pwfx;
+-	BYTE* data;
+-	pwfx = (PWAVEFORMATEX)malloc(sizeof(WAVEFORMATEX) + format->cbSize);
+-
+-	if (!pwfx)
+-		return FALSE;
+-
+-	pwfx->cbSize = format->cbSize;
+-	pwfx->wFormatTag = format->wFormatTag;
+-	pwfx->nChannels = format->nChannels;
+-	pwfx->nSamplesPerSec = format->nSamplesPerSec;
+-	pwfx->nBlockAlign = format->nBlockAlign;
+-	pwfx->wBitsPerSample = format->wBitsPerSample;
+-	data = (BYTE*)pwfx + sizeof(WAVEFORMATEX);
+-	memcpy(data, format->data, format->cbSize);
+-
+-	if (pwfx->wFormatTag == WAVE_FORMAT_PCM)
+-	{
+-		pwfx->nAvgBytesPerSec = pwfx->nSamplesPerSec * pwfx->nBlockAlign;
+-
+-		if (MMSYSERR_NOERROR == waveInOpen(NULL, WAVE_MAPPER, pwfx, 0, 0, WAVE_FORMAT_QUERY))
+-		{
+-			if (winmm->cFormats >= winmm->ppwfx_size)
+-			{
+-				PWAVEFORMATEX* tmp_ppwfx;
+-				tmp_ppwfx = realloc(winmm->ppwfx, sizeof(PWAVEFORMATEX) * winmm->ppwfx_size * 2);
+-
+-				if (!tmp_ppwfx)
+-					return FALSE;
+-
+-				winmm->ppwfx_size *= 2;
+-				winmm->ppwfx = tmp_ppwfx;
+-			}
+-
+-			winmm->ppwfx[winmm->cFormats++] = pwfx;
+-			return TRUE;
+-		}
+-	}
+-
+-	free(pwfx);
+-	return FALSE;
+-}
+-
+-/**
+- * Function description
+- *
+- * @return 0 on success, otherwise a Win32 error code
+- */
+-static UINT audin_winmm_open(IAudinDevice* device, AudinReceive receive, void* user_data)
+-{
+-	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
+-	winmm->receive = receive;
+-	winmm->user_data = user_data;
+-
+-	if (!(winmm->stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL)))
+-	{
+-		WLog_ERR(TAG, "CreateEvent failed!");
+-		return ERROR_INTERNAL_ERROR;
+-	}
+-
+-	if (!(winmm->thread = CreateThread(NULL, 0,
+-	                                   audin_winmm_thread_func, winmm, 0, NULL)))
+-	{
+-		WLog_ERR(TAG, "CreateThread failed!");
+-		CloseHandle(winmm->stopEvent);
+-		winmm->stopEvent = NULL;
+-		return ERROR_INTERNAL_ERROR;
+-	}
+-
+-	return CHANNEL_RC_OK;
+-}
+-
+-static COMMAND_LINE_ARGUMENT_A audin_winmm_args[] =
+-{
+-	{ "dev", COMMAND_LINE_VALUE_REQUIRED, "<device>", NULL, NULL, -1, NULL, "audio device name" },
+-	{ NULL, 0, NULL, NULL, NULL, -1, NULL, NULL }
+-};
+-
+-/**
+- * Function description
+- *
+- * @return 0 on success, otherwise a Win32 error code
+- */
+-static UINT audin_winmm_parse_addin_args(AudinWinmmDevice* device, ADDIN_ARGV* args)
+-{
+-	int status;
+-	DWORD flags;
+-	COMMAND_LINE_ARGUMENT_A* arg;
+-	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
+-	flags = COMMAND_LINE_SIGIL_NONE | COMMAND_LINE_SEPARATOR_COLON | COMMAND_LINE_IGN_UNKNOWN_KEYWORD;
+-	status = CommandLineParseArgumentsA(args->argc, (const char**) args->argv, audin_winmm_args, flags,
+-	                                    winmm, NULL, NULL);
+-	arg = audin_winmm_args;
+-
+-	do
+-	{
+-		if (!(arg->Flags & COMMAND_LINE_VALUE_PRESENT))
+-			continue;
+-
+-		CommandLineSwitchStart(arg)
+-		CommandLineSwitchCase(arg, "dev")
+-		{
+-			winmm->device_name = _strdup(arg->Value);
+-
+-			if (!winmm->device_name)
+-			{
+-				WLog_ERR(TAG, "_strdup failed!");
+-				return CHANNEL_RC_NO_MEMORY;
+-			}
+-		}
+-		CommandLineSwitchEnd(arg)
+-	}
+-	while ((arg = CommandLineFindNextArgumentA(arg)) != NULL);
+-
+-	return CHANNEL_RC_OK;
+-}
+-
+-#ifdef BUILTIN_CHANNELS
+-#define freerdp_audin_client_subsystem_entry	winmm_freerdp_audin_client_subsystem_entry
+-#else
+-#define freerdp_audin_client_subsystem_entry	FREERDP_API freerdp_audin_client_subsystem_entry
+-#endif
+-
+-/**
+- * Function description
+- *
+- * @return 0 on success, otherwise a Win32 error code
+- */
+-UINT freerdp_audin_client_subsystem_entry(PFREERDP_AUDIN_DEVICE_ENTRY_POINTS pEntryPoints)
+-{
+-	ADDIN_ARGV* args;
+-	AudinWinmmDevice* winmm;
+-	UINT error;
+-	winmm = (AudinWinmmDevice*) calloc(1, sizeof(AudinWinmmDevice));
+-
+-	if (!winmm)
+-	{
+-		WLog_ERR(TAG, "calloc failed!");
+-		return CHANNEL_RC_NO_MEMORY;
+-	}
+-
+-	winmm->iface.Open = audin_winmm_open;
+-	winmm->iface.FormatSupported = audin_winmm_format_supported;
+-	winmm->iface.SetFormat = audin_winmm_set_format;
+-	winmm->iface.Close = audin_winmm_close;
+-	winmm->iface.Free = audin_winmm_free;
+-	winmm->rdpcontext = pEntryPoints->rdpcontext;
+-	args = pEntryPoints->args;
+-
+-	if ((error = audin_winmm_parse_addin_args(winmm, args)))
+-	{
+-		WLog_ERR(TAG, "audin_winmm_parse_addin_args failed with error %"PRIu32"!", error);
+-		goto error_out;
+-	}
+-
+-	if (!winmm->device_name)
+-	{
+-		winmm->device_name = _strdup("default");
+-
+-		if (!winmm->device_name)
+-		{
+-			WLog_ERR(TAG, "_strdup failed!");
+-			error = CHANNEL_RC_NO_MEMORY;
+-			goto error_out;
+-		}
+-	}
+-
+-	winmm->ppwfx_size = 10;
+-	winmm->ppwfx = malloc(sizeof(PWAVEFORMATEX) * winmm->ppwfx_size);
+-
+-	if (!winmm->ppwfx)
+-	{
+-		WLog_ERR(TAG, "malloc failed!");
+-		error = CHANNEL_RC_NO_MEMORY;
+-		goto error_out;
+-	}
+-
+-	if ((error = pEntryPoints->pRegisterAudinDevice(pEntryPoints->plugin, (IAudinDevice*) winmm)))
+-	{
+-		WLog_ERR(TAG, "RegisterAudinDevice failed with error %"PRIu32"!", error);
+-		goto error_out;
+-	}
+-
+-	return CHANNEL_RC_OK;
+-error_out:
+-	free(winmm->ppwfx);
+-	free(winmm->device_name);
+-	free(winmm);
+-	return error;
+-}
++/**
++ * FreeRDP: A Remote Desktop Protocol Implementation
++ * Audio Input Redirection Virtual Channel - WinMM implementation
++ *
++ * Copyright 2013 Zhang Zhaolong <zhangzl2013@126.com>
++ * Copyright 2015 Thincast Technologies GmbH
++ * Copyright 2015 DI (FH) Martin Haimberger <martin.haimberger@thincast.com>
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++
++#include <Windows.h>
++#include <MMSystem.h>
++
++#include <winpr/crt.h>
++#include <winpr/cmdline.h>
++#include <freerdp/addin.h>
++#include <freerdp/client/audin.h>
++
++#include "audin_main.h"
++
++typedef struct _AudinWinmmDevice
++{
++	IAudinDevice iface;
++
++	char* device_name;
++	AudinReceive receive;
++	void* user_data;
++	HANDLE thread;
++	HANDLE stopEvent;
++	HWAVEIN hWaveIn;
++	PWAVEFORMATEX* ppwfx;
++	PWAVEFORMATEX pwfx_cur;
++	UINT32 ppwfx_size;
++	UINT32 cFormats;
++	UINT32 frames_per_packet;
++	rdpContext* rdpcontext;
++} AudinWinmmDevice;
++
++static void CALLBACK waveInProc(HWAVEIN hWaveIn, UINT uMsg, DWORD_PTR dwInstance,
++                                DWORD_PTR dwParam1, DWORD_PTR dwParam2)
++{
++	AudinWinmmDevice* winmm = (AudinWinmmDevice*) dwInstance;
++	PWAVEHDR pWaveHdr;
++	UINT error = CHANNEL_RC_OK;
++	MMRESULT mmResult;
++
++	switch (uMsg)
++	{
++		case WIM_CLOSE:
++			break;
++
++		case WIM_DATA:
++			pWaveHdr = (WAVEHDR*)dwParam1;
++
++			if (WHDR_DONE == (WHDR_DONE & pWaveHdr->dwFlags))
++			{
++				if (pWaveHdr->dwBytesRecorded
++				    && !(WaitForSingleObject(winmm->stopEvent, 0) == WAIT_OBJECT_0))
++				{
++					AUDIO_FORMAT format;
++					format.cbSize = winmm->pwfx_cur->cbSize;
++					format.nBlockAlign = winmm->pwfx_cur->nBlockAlign;
++					format.nAvgBytesPerSec = winmm->pwfx_cur->nAvgBytesPerSec;
++					format.nChannels = winmm->pwfx_cur->nChannels;
++					format.nSamplesPerSec = winmm->pwfx_cur->nSamplesPerSec;
++					format.wBitsPerSample = winmm->pwfx_cur->wBitsPerSample;
++					format.wFormatTag = winmm->pwfx_cur->wFormatTag;
++
++					if ((error = winmm->receive(&format, pWaveHdr->lpData, pWaveHdr->dwBytesRecorded,
++					                            winmm->user_data)))
++						break;
++
++					mmResult = waveInAddBuffer(hWaveIn, pWaveHdr, sizeof(WAVEHDR));
++
++					if (mmResult != MMSYSERR_NOERROR)
++						error = ERROR_INTERNAL_ERROR;
++				}
++			}
++
++			break;
++
++		case WIM_OPEN:
++			break;
++
++		default:
++			break;
++	}
++
++	if (error && winmm->rdpcontext)
++		setChannelError(winmm->rdpcontext, error, "waveInProc reported an error");
++}
++
++static DWORD WINAPI audin_winmm_thread_func(LPVOID arg)
++{
++	AudinWinmmDevice* winmm = (AudinWinmmDevice*) arg;
++	char* buffer;
++	int size, i;
++	WAVEHDR waveHdr[4];
++	DWORD status;
++	MMRESULT rc;
++
++	if (!winmm->hWaveIn)
++	{
++		if (MMSYSERR_NOERROR != waveInOpen(&winmm->hWaveIn, WAVE_MAPPER, winmm->pwfx_cur,
++		                                   (DWORD_PTR)waveInProc, (DWORD_PTR)winmm, CALLBACK_FUNCTION))
++		{
++			if (winmm->rdpcontext)
++				setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
++				                "audin_winmm_thread_func reported an error");
++
++			return ERROR_INTERNAL_ERROR;
++		}
++	}
++
++	size = (winmm->pwfx_cur->wBitsPerSample * winmm->pwfx_cur->nChannels * winmm->frames_per_packet +
++	        7) / 8;
++
++	for (i = 0; i < 4; i++)
++	{
++		buffer = (char*) malloc(size);
++
++		if (!buffer)
++			return CHANNEL_RC_NO_MEMORY;
++
++		waveHdr[i].dwBufferLength = size;
++		waveHdr[i].dwFlags = 0;
++		waveHdr[i].lpData = buffer;
++		rc = waveInPrepareHeader(winmm->hWaveIn, &waveHdr[i], sizeof(waveHdr[i]));
++
++		if (MMSYSERR_NOERROR != rc)
++		{
++			DEBUG_DVC("waveInPrepareHeader failed. %"PRIu32"", rc);
++
++			if (winmm->rdpcontext)
++				setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
++				                "audin_winmm_thread_func reported an error");
++		}
++
++		rc = waveInAddBuffer(winmm->hWaveIn, &waveHdr[i], sizeof(waveHdr[i]));
++
++		if (MMSYSERR_NOERROR != rc)
++		{
++			DEBUG_DVC("waveInAddBuffer failed. %"PRIu32"", rc);
++
++			if (winmm->rdpcontext)
++				setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
++				                "audin_winmm_thread_func reported an error");
++		}
++	}
++
++	rc = waveInStart(winmm->hWaveIn);
++
++	if (MMSYSERR_NOERROR != rc)
++	{
++		DEBUG_DVC("waveInStart failed. %"PRIu32"", rc);
++
++		if (winmm->rdpcontext)
++			setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
++			                "audin_winmm_thread_func reported an error");
++	}
++
++	status = WaitForSingleObject(winmm->stopEvent, INFINITE);
++
++	if (status == WAIT_FAILED)
++	{
++		DEBUG_DVC("WaitForSingleObject failed.");
++
++		if (winmm->rdpcontext)
++			setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
++			                "audin_winmm_thread_func reported an error");
++	}
++
++	rc = waveInReset(winmm->hWaveIn);
++
++	if (MMSYSERR_NOERROR != rc)
++	{
++		DEBUG_DVC("waveInReset failed. %"PRIu32"", rc);
++
++		if (winmm->rdpcontext)
++			setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
++			                "audin_winmm_thread_func reported an error");
++	}
++
++	for (i = 0; i < 4; i++)
++	{
++		rc = waveInUnprepareHeader(winmm->hWaveIn, &waveHdr[i], sizeof(waveHdr[i]));
++
++		if (MMSYSERR_NOERROR != rc)
++		{
++			DEBUG_DVC("waveInUnprepareHeader failed. %"PRIu32"", rc);
++
++			if (winmm->rdpcontext)
++				setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
++				                "audin_winmm_thread_func reported an error");
++		}
++
++		free(waveHdr[i].lpData);
++	}
++
++	rc = waveInClose(winmm->hWaveIn);
++
++	if (MMSYSERR_NOERROR != rc)
++	{
++		DEBUG_DVC("waveInClose failed. %"PRIu32"", rc);
++
++		if (winmm->rdpcontext)
++			setChannelError(winmm->rdpcontext, ERROR_INTERNAL_ERROR,
++			                "audin_winmm_thread_func reported an error");
++	}
++
++	winmm->hWaveIn = NULL;
++	return 0;
++}
++
++/**
++ * Function description
++ *
++ * @return 0 on success, otherwise a Win32 error code
++ */
++static UINT audin_winmm_free(IAudinDevice* device)
++{
++	UINT32 i;
++	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
++
++	for (i = 0; i < winmm->cFormats; i++)
++	{
++		free(winmm->ppwfx[i]);
++	}
++
++	free(winmm->ppwfx);
++	free(winmm->device_name);
++	free(winmm);
++	return CHANNEL_RC_OK;
++}
++
++/**
++ * Function description
++ *
++ * @return 0 on success, otherwise a Win32 error code
++ */
++static UINT audin_winmm_close(IAudinDevice* device)
++{
++	DWORD status;
++	UINT error = CHANNEL_RC_OK;
++	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
++	SetEvent(winmm->stopEvent);
++	status = WaitForSingleObject(winmm->thread, INFINITE);
++
++	if (status == WAIT_FAILED)
++	{
++		error = GetLastError();
++		WLog_ERR(TAG, "WaitForSingleObject failed with error %"PRIu32"!", error);
++		return error;
++	}
++
++	CloseHandle(winmm->thread);
++	CloseHandle(winmm->stopEvent);
++	winmm->thread = NULL;
++	winmm->stopEvent = NULL;
++	winmm->receive = NULL;
++	winmm->user_data = NULL;
++	return error;
++}
++
++/**
++ * Function description
++ *
++ * @return 0 on success, otherwise a Win32 error code
++ */
++static UINT audin_winmm_set_format(IAudinDevice* device, const AUDIO_FORMAT* format,
++                                   UINT32 FramesPerPacket)
++{
++	UINT32 i;
++	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
++	winmm->frames_per_packet = FramesPerPacket;
++
++	for (i = 0; i < winmm->cFormats; i++)
++	{
++		if (winmm->ppwfx[i]->wFormatTag == format->wFormatTag
++		    && winmm->ppwfx[i]->nChannels == format->nChannels
++		    && winmm->ppwfx[i]->wBitsPerSample == format->wBitsPerSample)
++		{
++			winmm->pwfx_cur = winmm->ppwfx[i];
++			break;
++		}
++	}
++
++	return CHANNEL_RC_OK;
++}
++
++static BOOL audin_winmm_format_supported(IAudinDevice* device, const AUDIO_FORMAT* format)
++{
++	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
++	PWAVEFORMATEX pwfx;
++	BYTE* data;
++	pwfx = (PWAVEFORMATEX)malloc(sizeof(WAVEFORMATEX) + format->cbSize);
++
++	if (!pwfx)
++		return FALSE;
++
++	pwfx->cbSize = format->cbSize;
++	pwfx->wFormatTag = format->wFormatTag;
++	pwfx->nChannels = format->nChannels;
++	pwfx->nSamplesPerSec = format->nSamplesPerSec;
++	pwfx->nBlockAlign = format->nBlockAlign;
++	pwfx->wBitsPerSample = format->wBitsPerSample;
++	data = (BYTE*)pwfx + sizeof(WAVEFORMATEX);
++	memcpy(data, format->data, format->cbSize);
++
++	if (pwfx->wFormatTag == WAVE_FORMAT_PCM)
++	{
++		pwfx->nAvgBytesPerSec = pwfx->nSamplesPerSec * pwfx->nBlockAlign;
++
++		if (MMSYSERR_NOERROR == waveInOpen(NULL, WAVE_MAPPER, pwfx, 0, 0, WAVE_FORMAT_QUERY))
++		{
++			if (winmm->cFormats >= winmm->ppwfx_size)
++			{
++				PWAVEFORMATEX* tmp_ppwfx;
++				tmp_ppwfx = realloc(winmm->ppwfx, sizeof(PWAVEFORMATEX) * winmm->ppwfx_size * 2);
++
++				if (!tmp_ppwfx)
++					return FALSE;
++
++				winmm->ppwfx_size *= 2;
++				winmm->ppwfx = tmp_ppwfx;
++			}
++
++			winmm->ppwfx[winmm->cFormats++] = pwfx;
++			return TRUE;
++		}
++	}
++
++	free(pwfx);
++	return FALSE;
++}
++
++/**
++ * Function description
++ *
++ * @return 0 on success, otherwise a Win32 error code
++ */
++static UINT audin_winmm_open(IAudinDevice* device, AudinReceive receive, void* user_data)
++{
++	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
++	winmm->receive = receive;
++	winmm->user_data = user_data;
++
++	if (!(winmm->stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL)))
++	{
++		WLog_ERR(TAG, "CreateEvent failed!");
++		return ERROR_INTERNAL_ERROR;
++	}
++
++	if (!(winmm->thread = CreateThread(NULL, 0,
++	                                   audin_winmm_thread_func, winmm, 0, NULL)))
++	{
++		WLog_ERR(TAG, "CreateThread failed!");
++		CloseHandle(winmm->stopEvent);
++		winmm->stopEvent = NULL;
++		return ERROR_INTERNAL_ERROR;
++	}
++
++	return CHANNEL_RC_OK;
++}
++
++static COMMAND_LINE_ARGUMENT_A audin_winmm_args[] =
++{
++	{ "dev", COMMAND_LINE_VALUE_REQUIRED, "<device>", NULL, NULL, -1, NULL, "audio device name" },
++	{ NULL, 0, NULL, NULL, NULL, -1, NULL, NULL }
++};
++
++/**
++ * Function description
++ *
++ * @return 0 on success, otherwise a Win32 error code
++ */
++static UINT audin_winmm_parse_addin_args(AudinWinmmDevice* device, ADDIN_ARGV* args)
++{
++	int status;
++	DWORD flags;
++	COMMAND_LINE_ARGUMENT_A* arg;
++	AudinWinmmDevice* winmm = (AudinWinmmDevice*) device;
++	flags = COMMAND_LINE_SIGIL_NONE | COMMAND_LINE_SEPARATOR_COLON | COMMAND_LINE_IGN_UNKNOWN_KEYWORD;
++	status = CommandLineParseArgumentsA(args->argc, (const char**) args->argv, audin_winmm_args, flags,
++	                                    winmm, NULL, NULL);
++	arg = audin_winmm_args;
++
++	do
++	{
++		if (!(arg->Flags & COMMAND_LINE_VALUE_PRESENT))
++			continue;
++
++		CommandLineSwitchStart(arg)
++		CommandLineSwitchCase(arg, "dev")
++		{
++			winmm->device_name = _strdup(arg->Value);
++
++			if (!winmm->device_name)
++			{
++				WLog_ERR(TAG, "_strdup failed!");
++				return CHANNEL_RC_NO_MEMORY;
++			}
++		}
++		CommandLineSwitchEnd(arg)
++	}
++	while ((arg = CommandLineFindNextArgumentA(arg)) != NULL);
++
++	return CHANNEL_RC_OK;
++}
++
++#ifdef BUILTIN_CHANNELS
++#define freerdp_audin_client_subsystem_entry	winmm_freerdp_audin_client_subsystem_entry
++#else
++#define freerdp_audin_client_subsystem_entry	FREERDP_API freerdp_audin_client_subsystem_entry
++#endif
++
++/**
++ * Function description
++ *
++ * @return 0 on success, otherwise a Win32 error code
++ */
++UINT freerdp_audin_client_subsystem_entry(PFREERDP_AUDIN_DEVICE_ENTRY_POINTS pEntryPoints)
++{
++	ADDIN_ARGV* args;
++	AudinWinmmDevice* winmm;
++	UINT error;
++	winmm = (AudinWinmmDevice*) calloc(1, sizeof(AudinWinmmDevice));
++
++	if (!winmm)
++	{
++		WLog_ERR(TAG, "calloc failed!");
++		return CHANNEL_RC_NO_MEMORY;
++	}
++
++	winmm->iface.Open = audin_winmm_open;
++	winmm->iface.FormatSupported = audin_winmm_format_supported;
++	winmm->iface.SetFormat = audin_winmm_set_format;
++	winmm->iface.Close = audin_winmm_close;
++	winmm->iface.Free = audin_winmm_free;
++	winmm->rdpcontext = pEntryPoints->rdpcontext;
++	args = pEntryPoints->args;
++
++	if ((error = audin_winmm_parse_addin_args(winmm, args)))
++	{
++		WLog_ERR(TAG, "audin_winmm_parse_addin_args failed with error %"PRIu32"!", error);
++		goto error_out;
++	}
++
++	if (!winmm->device_name)
++	{
++		winmm->device_name = _strdup("default");
++
++		if (!winmm->device_name)
++		{
++			WLog_ERR(TAG, "_strdup failed!");
++			error = CHANNEL_RC_NO_MEMORY;
++			goto error_out;
++		}
++	}
++
++	winmm->ppwfx_size = 10;
++	winmm->ppwfx = malloc(sizeof(PWAVEFORMATEX) * winmm->ppwfx_size);
++
++	if (!winmm->ppwfx)
++	{
++		WLog_ERR(TAG, "malloc failed!");
++		error = CHANNEL_RC_NO_MEMORY;
++		goto error_out;
++	}
++
++	if ((error = pEntryPoints->pRegisterAudinDevice(pEntryPoints->plugin, (IAudinDevice*) winmm)))
++	{
++		WLog_ERR(TAG, "RegisterAudinDevice failed with error %"PRIu32"!", error);
++		goto error_out;
++	}
++
++	return CHANNEL_RC_OK;
++error_out:
++	free(winmm->ppwfx);
++	free(winmm->device_name);
++	free(winmm);
++	return error;
++}
+diff --git a/channels/rdpsnd/client/alsa/rdpsnd_alsa.c b/channels/rdpsnd/client/alsa/rdpsnd_alsa.c
+index d513897..0740313 100644
+--- a/channels/rdpsnd/client/alsa/rdpsnd_alsa.c
++++ b/channels/rdpsnd/client/alsa/rdpsnd_alsa.c
+@@ -144,9 +144,10 @@ static int rdpsnd_alsa_set_sw_params(rdpsndAlsaPlugin* alsa)
+ 	status = snd_pcm_sw_params_current(alsa->pcm_handle, sw_params);
+ 	SND_PCM_CHECK("snd_pcm_sw_params_current", status);
+ 	status = snd_pcm_sw_params_set_avail_min(alsa->pcm_handle, sw_params,
+-			 (alsa->aformat.nChannels * alsa->actual_channels));
++	         (alsa->aformat.nChannels * alsa->actual_channels));
+ 	SND_PCM_CHECK("snd_pcm_sw_params_set_avail_min", status);
+-	status = snd_pcm_sw_params_set_start_threshold(alsa->pcm_handle, sw_params, alsa->aformat.nBlockAlign);
++	status = snd_pcm_sw_params_set_start_threshold(alsa->pcm_handle, sw_params,
++	         alsa->aformat.nBlockAlign);
+ 	SND_PCM_CHECK("snd_pcm_sw_params_set_start_threshold", status);
+ 	status = snd_pcm_sw_params(alsa->pcm_handle, sw_params);
+ 	SND_PCM_CHECK("snd_pcm_sw_params", status);
+diff --git a/channels/rdpsnd/client/ios/rdpsnd_ios.c b/channels/rdpsnd/client/ios/rdpsnd_ios.c
+index bed2e92..6431644 100644
+--- a/channels/rdpsnd/client/ios/rdpsnd_ios.c
++++ b/channels/rdpsnd/client/ios/rdpsnd_ios.c
+@@ -48,12 +48,12 @@ typedef struct rdpsnd_ios_plugin
+ #define THIS(__ptr) ((rdpsndIOSPlugin*)__ptr)
+ 
+ static OSStatus rdpsnd_ios_render_cb(
+-		void *inRefCon,
+-		AudioUnitRenderActionFlags __unused *ioActionFlags,
+-		const AudioTimeStamp __unused *inTimeStamp,
+-		UInt32 inBusNumber,
+-		UInt32 __unused inNumberFrames,
+-		AudioBufferList *ioData
++    void* inRefCon,
++    AudioUnitRenderActionFlags __unused* ioActionFlags,
++    const AudioTimeStamp __unused* inTimeStamp,
++    UInt32 inBusNumber,
++    UInt32 __unused inNumberFrames,
++    AudioBufferList* ioData
+ )
+ {
+ 	unsigned int i;
+@@ -63,21 +63,19 @@ static OSStatus rdpsnd_ios_render_cb(
+ 		return noErr;
+ 	}
+ 
+-	rdpsndIOSPlugin *p = THIS(inRefCon);
++	rdpsndIOSPlugin* p = THIS(inRefCon);
+ 
+ 	for (i = 0; i < ioData->mNumberBuffers; i++)
+ 	{
+ 		AudioBuffer* target_buffer = &ioData->mBuffers[i];
+-
+ 		int32_t available_bytes = 0;
+-		const void *buffer = TPCircularBufferTail(&p->buffer, &available_bytes);
++		const void* buffer = TPCircularBufferTail(&p->buffer, &available_bytes);
++
+ 		if (buffer != NULL && available_bytes > 0)
+ 		{
+ 			const int bytes_to_copy = MIN((int32_t)target_buffer->mDataByteSize, available_bytes);
+-
+ 			memcpy(target_buffer->mData, buffer, bytes_to_copy);
+ 			target_buffer->mDataByteSize = bytes_to_copy;
+-
+ 			TPCircularBufferConsume(&p->buffer, bytes_to_copy);
+ 		}
+ 		else
+@@ -97,10 +95,12 @@ static BOOL rdpsnd_ios_format_supported(rdpsndDevicePlugin* __unused device, AUD
+ 	{
+ 		return 1;
+ 	}
++
+ 	return 0;
+ }
+ 
+-static BOOL rdpsnd_ios_set_format(rdpsndDevicePlugin* __unused device, AUDIO_FORMAT* __unused format, int __unused latency)
++static BOOL rdpsnd_ios_set_format(rdpsndDevicePlugin* __unused device,
++                                  AUDIO_FORMAT* __unused format, int __unused latency)
+ {
+ 	return TRUE;
+ }
+@@ -112,7 +112,7 @@ static BOOL rdpsnd_ios_set_volume(rdpsndDevicePlugin* __unused device, UINT32 __
+ 
+ static void rdpsnd_ios_start(rdpsndDevicePlugin* device)
+ {
+-	rdpsndIOSPlugin *p = THIS(device);
++	rdpsndIOSPlugin* p = THIS(device);
+ 
+ 	/* If this device is not playing... */
+ 	if (!p->is_playing)
+@@ -120,6 +120,7 @@ static void rdpsnd_ios_start(rdpsndDevicePlugin* device)
+ 		/* Start the device. */
+ 		int32_t available_bytes = 0;
+ 		TPCircularBufferTail(&p->buffer, &available_bytes);
++
+ 		if (available_bytes > 0)
+ 		{
+ 			p->is_playing = 1;
+@@ -130,7 +131,7 @@ static void rdpsnd_ios_start(rdpsndDevicePlugin* device)
+ 
+ static void rdpsnd_ios_stop(rdpsndDevicePlugin* __unused device)
+ {
+-	rdpsndIOSPlugin *p = THIS(device);
++	rdpsndIOSPlugin* p = THIS(device);
+ 
+ 	/* If the device is playing... */
+ 	if (p->is_playing)
+@@ -138,7 +139,6 @@ static void rdpsnd_ios_stop(rdpsndDevicePlugin* __unused device)
+ 		/* Stop the device. */
+ 		AudioOutputUnitStop(p->audio_unit);
+ 		p->is_playing = 0;
+-
+ 		/* Free all buffers. */
+ 		TPCircularBufferClear(&p->buffer);
+ 	}
+@@ -146,20 +146,19 @@ static void rdpsnd_ios_stop(rdpsndDevicePlugin* __unused device)
+ 
+ static UINT rdpsnd_ios_play(rdpsndDevicePlugin* device, BYTE* data, int size)
+ {
+-	rdpsndIOSPlugin *p = THIS(device);
+-
++	rdpsndIOSPlugin* p = THIS(device);
+ 	const BOOL ok = TPCircularBufferProduceBytes(&p->buffer, data, size);
++
+ 	if (!ok)
+ 		return 0;
+ 
+ 	rdpsnd_ios_start(device);
+-
+ 	return 10; /* TODO: Get real latencry in [ms] */
+ }
+ 
+ static BOOL rdpsnd_ios_open(rdpsndDevicePlugin* device, AUDIO_FORMAT* format, int __unused latency)
+ {
+-	rdpsndIOSPlugin *p = THIS(device);
++	rdpsndIOSPlugin* p = THIS(device);
+ 
+ 	if (p->is_opened)
+ 		return TRUE;
+@@ -171,13 +170,14 @@ static BOOL rdpsnd_ios_open(rdpsndDevicePlugin* device, AUDIO_FORMAT* format, in
+ 	desc.componentSubType = kAudioUnitSubType_RemoteIO;
+ 	desc.componentFlags = 0;
+ 	desc.componentFlagsMask = 0;
+-
+ 	AudioComponent audioComponent = AudioComponentFindNext(NULL, &desc);
++
+ 	if (audioComponent == NULL)
+ 		return FALSE;
+ 
+ 	/* Open the audio unit. */
+ 	OSStatus status = AudioComponentInstanceNew(audioComponent, &p->audio_unit);
++
+ 	if (status != 0)
+ 		return FALSE;
+ 
+@@ -191,14 +191,14 @@ static BOOL rdpsnd_ios_open(rdpsndDevicePlugin* device, AUDIO_FORMAT* format, in
+ 	audioFormat.mBitsPerChannel   = format->wBitsPerSample;
+ 	audioFormat.mBytesPerFrame    = (format->wBitsPerSample * format->nChannels) / 8;
+ 	audioFormat.mBytesPerPacket   = audioFormat.mBytesPerFrame * audioFormat.mFramesPerPacket;
+-
+ 	status = AudioUnitSetProperty(
+-			p->audio_unit,
+-			kAudioUnitProperty_StreamFormat,
+-			kAudioUnitScope_Input,
+-			0,
+-			&audioFormat,
+-			sizeof(audioFormat));
++	             p->audio_unit,
++	             kAudioUnitProperty_StreamFormat,
++	             kAudioUnitScope_Input,
++	             0,
++	             &audioFormat,
++	             sizeof(audioFormat));
++
+ 	if (status != 0)
+ 	{
+ 		AudioComponentInstanceDispose(p->audio_unit);
+@@ -211,12 +211,13 @@ static BOOL rdpsnd_ios_open(rdpsndDevicePlugin* device, AUDIO_FORMAT* format, in
+ 	callbackStruct.inputProc = rdpsnd_ios_render_cb;
+ 	callbackStruct.inputProcRefCon = p;
+ 	status = AudioUnitSetProperty(
+-			p->audio_unit,
+-			kAudioUnitProperty_SetRenderCallback,
+-			kAudioUnitScope_Input,
+-			0,
+-			&callbackStruct,
+-			sizeof(callbackStruct));
++	             p->audio_unit,
++	             kAudioUnitProperty_SetRenderCallback,
++	             kAudioUnitScope_Input,
++	             0,
++	             &callbackStruct,
++	             sizeof(callbackStruct));
++
+ 	if (status != 0)
+ 	{
+ 		AudioComponentInstanceDispose(p->audio_unit);
+@@ -226,6 +227,7 @@ static BOOL rdpsnd_ios_open(rdpsndDevicePlugin* device, AUDIO_FORMAT* format, in
+ 
+ 	/* Initialize the AudioUnit. */
+ 	status = AudioUnitInitialize(p->audio_unit);
++
+ 	if (status != 0)
+ 	{
+ 		AudioComponentInstanceDispose(p->audio_unit);
+@@ -235,6 +237,7 @@ static BOOL rdpsnd_ios_open(rdpsndDevicePlugin* device, AUDIO_FORMAT* format, in
+ 
+ 	/* Allocate the circular buffer. */
+ 	const BOOL ok = TPCircularBufferInit(&p->buffer, CIRCULAR_BUFFER_SIZE);
++
+ 	if (!ok)
+ 	{
+ 		AudioUnitUninitialize(p->audio_unit);
+@@ -249,8 +252,7 @@ static BOOL rdpsnd_ios_open(rdpsndDevicePlugin* device, AUDIO_FORMAT* format, in
+ 
+ static void rdpsnd_ios_close(rdpsndDevicePlugin* device)
+ {
+-	rdpsndIOSPlugin *p = THIS(device);
+-
++	rdpsndIOSPlugin* p = THIS(device);
+ 	/* Make sure the device is stopped. */
+ 	rdpsnd_ios_stop(device);
+ 
+@@ -262,7 +264,6 @@ static void rdpsnd_ios_close(rdpsndDevicePlugin* device)
+ 		AudioComponentInstanceDispose(p->audio_unit);
+ 		p->audio_unit = NULL;
+ 		p->is_opened = 0;
+-
+ 		/* Destroy the circular buffer. */
+ 		TPCircularBufferCleanup(&p->buffer);
+ 	}
+@@ -270,11 +271,9 @@ static void rdpsnd_ios_close(rdpsndDevicePlugin* device)
+ 
+ static void rdpsnd_ios_free(rdpsndDevicePlugin* device)
+ {
+-	rdpsndIOSPlugin *p = THIS(device);
+-
++	rdpsndIOSPlugin* p = THIS(device);
+ 	/* Ensure the device is closed. */
+ 	rdpsnd_ios_close(device);
+-
+ 	/* Free memory associated with the device. */
+ 	free(p);
+ }
+@@ -305,8 +304,6 @@ UINT freerdp_rdpsnd_client_subsystem_entry(PFREERDP_RDPSND_DEVICE_ENTRY_POINTS p
+ 	p->device.Start = rdpsnd_ios_start;
+ 	p->device.Close = rdpsnd_ios_close;
+ 	p->device.Free = rdpsnd_ios_free;
+-
+ 	pEntryPoints->pRegisterRdpsndDevice(pEntryPoints->rdpsnd, (rdpsndDevicePlugin*)p);
+-
+ 	return CHANNEL_RC_OK;
+ }
+diff --git a/channels/rdpsnd/client/mac/rdpsnd_mac.c b/channels/rdpsnd/client/mac/rdpsnd_mac.c
+index 7cc599e..db98057 100644
+--- a/channels/rdpsnd/client/mac/rdpsnd_mac.c
++++ b/channels/rdpsnd/client/mac/rdpsnd_mac.c
+@@ -267,19 +267,15 @@ static UINT rdpsnd_mac_play(rdpsndDevicePlugin* device, const BYTE* data, size_t
+ 		return 0;
+ 
+ 	audioBuffer = mac->audioBuffers[mac->audioBufferIndex];
+-
+ 	length = size > audioBuffer->mAudioDataBytesCapacity ? audioBuffer->mAudioDataBytesCapacity : size;
+-
+ 	CopyMemory(audioBuffer->mAudioData, data, length);
+ 	audioBuffer->mAudioDataByteSize = length;
+ 	audioBuffer->mUserData = mac;
+-
+-	AudioQueueEnqueueBufferWithParameters(mac->audioQueue, audioBuffer, 0, 0, 0, 0, 0, NULL, NULL, &outActualStartTime);
+-
++	AudioQueueEnqueueBufferWithParameters(mac->audioQueue, audioBuffer, 0, 0, 0, 0, 0, NULL, NULL,
++	                                      &outActualStartTime);
+ 	mac->lastAudioBufferIndex = mac->audioBufferIndex;
+ 	mac->audioBufferIndex++;
+ 	mac->audioBufferIndex %= MAC_AUDIO_QUEUE_NUM_BUFFERS;
+-
+ 	rdpsnd_mac_start(device);
+ 	return 10; /* TODO: Get real latencry in [ms] */
+ }
+diff --git a/channels/rdpsnd/client/pulse/rdpsnd_pulse.c b/channels/rdpsnd/client/pulse/rdpsnd_pulse.c
+index b134b63..f8ec49e 100644
+--- a/channels/rdpsnd/client/pulse/rdpsnd_pulse.c
++++ b/channels/rdpsnd/client/pulse/rdpsnd_pulse.c
+@@ -448,7 +448,6 @@ static UINT rdpsnd_pulse_play(rdpsndDevicePlugin* device, const BYTE* data, size
+ 		latency = 0;
+ 
+ 	pa_threaded_mainloop_unlock(pulse->mainloop);
+-
+ 	return latency / 1000;
+ }
+ 
+diff --git a/channels/rdpsnd/client/rdpsnd_main.c b/channels/rdpsnd/client/rdpsnd_main.c
+index d00f625..c98229d 100644
+--- a/channels/rdpsnd/client/rdpsnd_main.c
++++ b/channels/rdpsnd/client/rdpsnd_main.c
+@@ -191,7 +191,6 @@ static UINT rdpsnd_send_client_audio_formats(rdpsndPlugin* rdpsnd)
+ 	UINT16 length;
+ 	UINT32 dwVolume;
+ 	UINT16 wNumberOfFormats;
+-
+ 	dwVolume = IFCALLRESULT(0, rdpsnd->device->GetVolume, rdpsnd->device);
+ 	wNumberOfFormats = rdpsnd->NumberOfClientFormats;
+ 	length = 4 + 20;
+@@ -509,7 +508,8 @@ static UINT rdpsnd_recv_wave_pdu(rdpsndPlugin* rdpsnd, wStream* s)
+ 		else if (freerdp_dsp_decode(rdpsnd->dsp_context, format, data, size, pcmData))
+ 		{
+ 			Stream_SealLength(pcmData);
+-			latency = IFCALLRESULT(0, rdpsnd->device->Play, rdpsnd->device, Stream_Buffer(pcmData), Stream_Length(pcmData));
++			latency = IFCALLRESULT(0, rdpsnd->device->Play, rdpsnd->device, Stream_Buffer(pcmData),
++			                       Stream_Length(pcmData));
+ 			status = CHANNEL_RC_OK;
+ 		}
+ 
+diff --git a/channels/rdpsnd/client/winmm/rdpsnd_winmm.c b/channels/rdpsnd/client/winmm/rdpsnd_winmm.c
+index bc88954..c61e02c 100644
+--- a/channels/rdpsnd/client/winmm/rdpsnd_winmm.c
++++ b/channels/rdpsnd/client/winmm/rdpsnd_winmm.c
+@@ -270,7 +270,6 @@ static UINT rdpsnd_winmm_play(rdpsndDevicePlugin* device, const BYTE* data, size
+ 	}
+ 
+ 	WaitForSingleObject(winmm->next, INFINITE);
+-
+ 	return 10; /* TODO: Get real latencry in [ms] */
+ }
+ 
+diff --git a/channels/rdpsnd/server/rdpsnd_main.c b/channels/rdpsnd/server/rdpsnd_main.c
+index 6c565e9..3f5b816 100644
+--- a/channels/rdpsnd/server/rdpsnd_main.c
++++ b/channels/rdpsnd/server/rdpsnd_main.c
+@@ -416,7 +416,6 @@ static UINT rdpsnd_server_send_audio_pdu(RdpsndServerContext* context,
+ 	wStream* s = context->priv->rdpsnd_pdu;
+ 	UINT error = CHANNEL_RC_OK;
+ 	format = &context->client_formats[context->selected_client_format];
+-
+ 	/* WaveInfo PDU */
+ 	Stream_SetPosition(s, 0);
+ 	Stream_Write_UINT8(s, SNDC_WAVE); /* msgType */
+@@ -651,7 +650,7 @@ static UINT rdpsnd_server_start(RdpsndServerContext* context)
+ 		}
+ 
+ 		context->priv->Thread = CreateThread(NULL, 0,
+-											 rdpsnd_server_thread, (void*) context, 0, NULL);
++		                                     rdpsnd_server_thread, (void*) context, 0, NULL);
+ 
+ 		if (!context->priv->Thread)
+ 		{
+diff --git a/include/freerdp/client/rdpsnd.h b/include/freerdp/client/rdpsnd.h
+index d4a5979..50c3f00 100644
+--- a/include/freerdp/client/rdpsnd.h
++++ b/include/freerdp/client/rdpsnd.h
+@@ -32,7 +32,7 @@ typedef struct rdpsnd_device_plugin rdpsndDevicePlugin;
+ 
+ typedef BOOL (*pcFormatSupported)(rdpsndDevicePlugin* device, const AUDIO_FORMAT* format);
+ typedef BOOL (*pcOpen)(rdpsndDevicePlugin* device, const AUDIO_FORMAT* format, UINT32 latency);
+-typedef UINT32(*pcGetVolume)(rdpsndDevicePlugin* device);
++typedef UINT32 (*pcGetVolume)(rdpsndDevicePlugin* device);
+ typedef BOOL (*pcSetVolume)(rdpsndDevicePlugin* device, UINT32 value);
+ typedef UINT (*pcPlay)(rdpsndDevicePlugin* device, const BYTE* data, size_t size);
+ typedef void (*pcStart)(rdpsndDevicePlugin* device);
+diff --git a/libfreerdp/codec/dsp.c b/libfreerdp/codec/dsp.c
+index d246630..3d477de 100644
+--- a/libfreerdp/codec/dsp.c
++++ b/libfreerdp/codec/dsp.c
+@@ -297,6 +297,7 @@ static BOOL freerdp_dsp_decode_gsm610(FREERDP_DSP_CONTEXT* context,
+ 		int rc;
+ 		gsm_signal gsmBlockBuffer[160] = { 0 };
+ 		rc = gsm_decode(context->gsm, (gsm_byte*) &src[offset], gsmBlockBuffer);
++
+ 		if (rc < 0)
+ 			return FALSE;
+ 
+@@ -327,10 +328,12 @@ static BOOL freerdp_dsp_encode_gsm610(FREERDP_DSP_CONTEXT* context,
+ 			return FALSE;
+ 
+ 		gsm_encode(context->gsm, signal, Stream_Pointer(out));
++
+ 		if ((offset % 65) == 0)
+ 			Stream_Seek(out, 33);
+ 		else
+ 			Stream_Seek(out, 32);
++
+ 		offset += 160;
+ 	}
+ 
+@@ -933,7 +936,6 @@ FREERDP_DSP_CONTEXT* freerdp_dsp_context_new(BOOL encoder)
+ 	{
+ 		int rc;
+ 		int val = 1;
+-
+ 		rc = gsm_option(context->gsm, GSM_OPT_WAV49, &val);
+ 
+ 		if (rc < 0)
+diff --git a/libfreerdp/codec/dsp_ffmpeg.c b/libfreerdp/codec/dsp_ffmpeg.c
+index 9865131..13661e1 100644
+--- a/libfreerdp/codec/dsp_ffmpeg.c
++++ b/libfreerdp/codec/dsp_ffmpeg.c
+@@ -58,9 +58,10 @@ static BOOL ffmpeg_codec_is_filtered(enum AVCodecID id, BOOL encoder)
+ 	if (!encoder)
+ 		return FALSE;
+ 
+-	switch(id)
++	switch (id)
+ 	{
+ #if !defined(WITH_DSP_EXPERIMENTAL)
++
+ 		case AV_CODEC_ID_MP3:
+ 		case AV_CODEC_ID_GSM_MS:
+ 		case AV_CODEC_ID_AAC:
+@@ -227,12 +228,13 @@ static BOOL ffmpeg_open_context(FREERDP_DSP_CONTEXT* context)
+ 	if (!context->context)
+ 		goto fail;
+ 
+-	switch(context->id)
++	switch (context->id)
+ 	{
+ 		/* We need support for multichannel and sample rates != 8000 */
+ 		case AV_CODEC_ID_GSM_MS:
+ 			context->context->strict_std_compliance = FF_COMPLIANCE_UNOFFICIAL;
+ 			break;
++
+ 		default:
+ 			break;
+ 	}
+@@ -355,7 +357,7 @@ static BOOL ffmpeg_encode_frame(AVCodecContext* context, AVFrame* in,
+ 	{
+ 		const char* err = av_err2str(ret);
+ 		WLog_ERR(TAG, "Error submitting the packet to the encoder %s [%d]",
+-				 err, ret);
++		         err, ret);
+ 		return FALSE;
+ 	}
+ 
+diff --git a/server/shadow/shadow_audin.c b/server/shadow/shadow_audin.c
+index 0c5f421..6e0959b 100644
+--- a/server/shadow/shadow_audin.c
++++ b/server/shadow/shadow_audin.c
+@@ -49,8 +49,8 @@ static UINT AudinServerOpening(audin_server_context* context)
+ 		for (j = 0; j < context->num_server_formats; j++)
+ 		{
+ 			if ((context->client_formats[i].wFormatTag == context->server_formats[j].wFormatTag) &&
+-					(context->client_formats[i].nChannels == context->server_formats[j].nChannels) &&
+-					(context->client_formats[i].nSamplesPerSec == context->server_formats[j].nSamplesPerSec))
++			    (context->client_formats[i].nChannels == context->server_formats[j].nChannels) &&
++			    (context->client_formats[i].nSamplesPerSec == context->server_formats[j].nSamplesPerSec))
+ 			{
+ 				agreed_format = (AUDIO_FORMAT*) &context->server_formats[j];
+ 				break;
+@@ -87,7 +87,7 @@ static UINT AudinServerOpenResult(audin_server_context* context, UINT32 result)
+  */
+ static UINT AudinServerReceiveSamples(audin_server_context* context, const void* buf, int nframes)
+ {
+-	rdpShadowClient* client = (rdpShadowClient* )context->data;
++	rdpShadowClient* client = (rdpShadowClient*)context->data;
+ 	rdpShadowSubsystem* subsystem = client->server->subsystem;
+ 
+ 	if (!client->mayInteract)
+@@ -120,7 +120,8 @@ int shadow_client_audin_init(rdpShadowClient* client)
+ 	{
+ 		/* Set default audio formats. */
+ 		audin->server_formats = default_supported_audio_formats;
+-		audin->num_server_formats = sizeof(default_supported_audio_formats) / sizeof(default_supported_audio_formats[0]);
++		audin->num_server_formats = sizeof(default_supported_audio_formats) / sizeof(
++		                                default_supported_audio_formats[0]);
+ 	}
+ 
+ 	audin->dst_format = audin->server_formats[0];
+-- 
+1.8.3.1
+

@@ -1,0 +1,27 @@
+From 1c127fab7df4d540d0fd79cb0a81a20f39068452 Mon Sep 17 00:00:00 2001
+From: Armin Novak <armin.novak@thincast.com>
+Date: Fri, 23 Mar 2018 13:26:17 +0100
+Subject: [PATCH 05/13] Added AudioFormatFlags fallback.
+
+---
+ channels/audin/client/mac/audin_mac.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/channels/audin/client/mac/audin_mac.c b/channels/audin/client/mac/audin_mac.c
+index 2fee270..3b9efe9 100644
+--- a/channels/audin/client/mac/audin_mac.c
++++ b/channels/audin/client/mac/audin_mac.c
+@@ -56,6 +56,10 @@
+ typedef UInt32 AudioFormatID;
+ #endif
+ 
++#ifndef AudioFormatFlags
++typedef UInt32 AudioFormatFlags;
++#endif
++
+ typedef struct _AudinMacDevice
+ {
+ 	IAudinDevice iface;
+-- 
+1.8.3.1
+

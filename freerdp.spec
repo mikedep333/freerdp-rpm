@@ -16,7 +16,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        41%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}.1
+Release:        41%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}.2
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -24,6 +24,19 @@ URL:            http://www.freerdp.com/
 
 Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{commit0}/FreeRDP-%{commit0}.tar.gz#/FreeRDP-%{shortcommit0}.tar.gz
 Patch0:         freerdp-aarch64.patch
+Patch1111: 0001-Rewrite-of-sound-and-microphone-channels.patch
+Patch1112: 0002-Added-CMake-option-WITH_DSP_EXPERIMENTAL.patch
+Patch1113: 0003-Fix-4462-Fallback-typedef-for-AudioFormatID-on-MacOS.patch
+Patch1114: 0004-Initialized-ALSA-backend-format.patch
+Patch1115: 0005-Added-AudioFormatFlags-fallback.patch
+Patch1116: 0006-Free-dsp-context-on-close.patch
+Patch1117: 0007-Fixed-formatting-of-changed-files.patch
+Patch1118: 0008-Fixed-function-pointer-typedef-formatting.patch
+Patch1119: 0009-Fixed-channel-duplicate-disconnect-handling.patch
+Patch1120: 0010-Added-fake-rdpsnd-backend.patch
+Patch1121: 0011-Fix-rdpsnd-channel-detached-handling.patch
+Patch1122: 0012-rdpsnd-add-support-for-wave2-PDU-in-client-2.patch
+Patch1123: 0013-Ensure-audin-channel-uses-supported-protocol-version.patch
 
 BuildRequires:  alsa-lib-devel
 BuildRequires:  cmake >= 2.8
@@ -132,6 +145,19 @@ developing applications that use %{name}-libwinpr.
 %prep
 %setup -qn FreeRDP-%{commit0}
 %patch0 -p1 -b .aarch64
+%patch1111 -p1
+%patch1112 -p1
+%patch1113 -p1
+%patch1114 -p1
+%patch1115 -p1
+%patch1116 -p1
+%patch1117 -p1
+%patch1118 -p1
+%patch1119 -p1
+%patch1120 -p1
+%patch1121 -p1
+%patch1122 -p1
+%patch1123 -p1
 
 # Rpmlint fixes
 find . -name "*.h" -exec chmod 664 {} \;
@@ -272,6 +298,10 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Mon Apr 23 2018 Mike DePaulo (GFDL) - 2:2.0.0-41.20180405gita9ecd6a.2
+- Fix crash by applying 13 patches from FreeRDP upstream merge request #4453
+  "Sound channel refactoring", written against a9ecd6a exactly.
+
 * Mon Apr 16 2018 Mike DePaulo (GFDL) - 2:2.0.0-41.20180405gita9ecd6a.1
 - Fix build on EL7 by reverting "use versioned build requirement on pkgconfig(openssl)"
 

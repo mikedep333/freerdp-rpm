@@ -1,0 +1,55 @@
+From 2c98d85a345793c36ba1d2b6b9033763f170c712 Mon Sep 17 00:00:00 2001
+From: Armin Novak <armin.novak@thincast.com>
+Date: Tue, 3 Apr 2018 12:08:01 +0200
+Subject: [PATCH 08/13] Fixed function pointer typedef formatting.
+
+---
+ include/freerdp/client/audin.h | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/include/freerdp/client/audin.h b/include/freerdp/client/audin.h
+index c1e98c0..d85487b 100644
+--- a/include/freerdp/client/audin.h
++++ b/include/freerdp/client/audin.h
+@@ -30,22 +30,22 @@
+  * Subsystem Interface
+  */
+ 
+-typedef UINT(*AudinReceive)(const AUDIO_FORMAT* format,
+-                            const BYTE* data, size_t size, void* userData);
++typedef UINT (*AudinReceive)(const AUDIO_FORMAT* format,
++                             const BYTE* data, size_t size, void* userData);
+ 
+ typedef struct _IAudinDevice IAudinDevice;
+ struct _IAudinDevice
+ {
+-	UINT(*Open)(IAudinDevice* devplugin, AudinReceive receive, void* userData);
++	UINT (*Open)(IAudinDevice* devplugin, AudinReceive receive, void* userData);
+ 	BOOL (*FormatSupported)(IAudinDevice* devplugin, const AUDIO_FORMAT* format);
+-	UINT(*SetFormat)(IAudinDevice* devplugin, const AUDIO_FORMAT* format, UINT32 FramesPerPacket);
+-	UINT(*Close)(IAudinDevice* devplugin);
+-	UINT(*Free)(IAudinDevice* devplugin);
++	UINT (*SetFormat)(IAudinDevice* devplugin, const AUDIO_FORMAT* format, UINT32 FramesPerPacket);
++	UINT (*Close)(IAudinDevice* devplugin);
++	UINT (*Free)(IAudinDevice* devplugin);
+ };
+ 
+ #define AUDIN_DEVICE_EXPORT_FUNC_NAME "freerdp_audin_client_subsystem_entry"
+ 
+-typedef UINT(*PREGISTERAUDINDEVICE)(IWTSPlugin* plugin, IAudinDevice* device);
++typedef UINT (*PREGISTERAUDINDEVICE)(IWTSPlugin* plugin, IAudinDevice* device);
+ 
+ struct _FREERDP_AUDIN_DEVICE_ENTRY_POINTS
+ {
+@@ -57,7 +57,7 @@ struct _FREERDP_AUDIN_DEVICE_ENTRY_POINTS
+ typedef struct _FREERDP_AUDIN_DEVICE_ENTRY_POINTS FREERDP_AUDIN_DEVICE_ENTRY_POINTS;
+ typedef FREERDP_AUDIN_DEVICE_ENTRY_POINTS* PFREERDP_AUDIN_DEVICE_ENTRY_POINTS;
+ 
+-typedef UINT(*PFREERDP_AUDIN_DEVICE_ENTRY)(PFREERDP_AUDIN_DEVICE_ENTRY_POINTS pEntryPoints);
++typedef UINT (*PFREERDP_AUDIN_DEVICE_ENTRY)(PFREERDP_AUDIN_DEVICE_ENTRY_POINTS pEntryPoints);
+ 
+ #endif /* FREERDP_CHANNEL_AUDIN_CLIENT_AUDIN_H */
+ 
+-- 
+1.8.3.1
+

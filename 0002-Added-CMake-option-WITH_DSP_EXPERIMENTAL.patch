@@ -1,0 +1,136 @@
+From 4d45bd66612040555ec75644d312551d2aaafd02 Mon Sep 17 00:00:00 2001
+From: Armin Novak <armin.novak@thincast.com>
+Date: Wed, 14 Mar 2018 16:10:12 +0100
+Subject: [PATCH 02/13] Added CMake option WITH_DSP_EXPERIMENTAL
+
+Some encoder/decoder formats are currently not really working or
+have not been thouroughly tested. To allow fearless hackers
+fine tuning this flag is added to easily enable/disable these formats.
+---
+ cmake/ConfigOptions.cmake     |  1 +
+ config.h.in                   |  1 +
+ libfreerdp/codec/dsp.c        | 10 +++++++++-
+ libfreerdp/codec/dsp_ffmpeg.c | 28 +++++++++++++++++++++++++---
+ 4 files changed, 36 insertions(+), 4 deletions(-)
+
+diff --git a/cmake/ConfigOptions.cmake b/cmake/ConfigOptions.cmake
+index 9c13e4d..e5c085a 100644
+--- a/cmake/ConfigOptions.cmake
++++ b/cmake/ConfigOptions.cmake
+@@ -132,6 +132,7 @@ option(WITH_DEBUG_SYMBOLS "Pack debug symbols to installer" OFF)
+ option(WITH_CCACHE "Use ccache support if available" ON)
+ option(WITH_ICU "Use ICU for unicode conversion" OFF)
+ 
++option(WITH_DSP_EXPERIMENTAL "Enable experimental sound encoder/decoder formats" OFF)
+ if (WITH_FFMPEG)
+     option(WITH_DSP_FFMPEG "Use FFMPEG for audio encoding/decoding" OFF)
+ endif(WITH_FFMPEG)
+diff --git a/config.h.in b/config.h.in
+index 875db0a..34aa7ce 100644
+--- a/config.h.in
++++ b/config.h.in
+@@ -58,6 +58,7 @@
+ #cmakedefine WITH_GFX_H264
+ #cmakedefine WITH_OPENH264
+ #cmakedefine WITH_FFMPEG
++#cmakedefine WITH_DSP_EXPERIMENTAL
+ #cmakedefine WITH_DSP_FFMPEG
+ #cmakedefine WITH_X264
+ #cmakedefine WITH_MEDIA_FOUNDATION
+diff --git a/libfreerdp/codec/dsp.c b/libfreerdp/codec/dsp.c
+index 81107d4..d246630 100644
+--- a/libfreerdp/codec/dsp.c
++++ b/libfreerdp/codec/dsp.c
+@@ -1128,12 +1128,20 @@ BOOL freerdp_dsp_supports_format(const AUDIO_FORMAT* format, BOOL encode)
+ #if defined(WITH_GSM)
+ 
+ 		case WAVE_FORMAT_GSM610:
++#if defined(WITH_DSP_EXPERIMENTAL)
+ 			return TRUE;
++#else
++			return !encode;
++#endif
+ #endif
+ #if defined(WITH_LAME)
+ 
+ 		case WAVE_FORMAT_MPEGLAYER3:
++#if defined(WITH_DSP_EXPERIMENTAL)
+ 			return TRUE;
++#else
++			return !encode;
++#endif
+ #endif
+ 
+ 		case WAVE_FORMAT_AAC_MS:
+@@ -1142,7 +1150,7 @@ BOOL freerdp_dsp_supports_format(const AUDIO_FORMAT* format, BOOL encode)
+ 				return TRUE;
+ 
+ #endif
+-#if defined(WITH_FAAC)
++#if defined(WITH_FAAC) && defined(WITH_DSP_EXPERIMENTAL)
+ 
+ 			if (encode)
+ 				return TRUE;
+diff --git a/libfreerdp/codec/dsp_ffmpeg.c b/libfreerdp/codec/dsp_ffmpeg.c
+index b48dbbf..9865131 100644
+--- a/libfreerdp/codec/dsp_ffmpeg.c
++++ b/libfreerdp/codec/dsp_ffmpeg.c
+@@ -53,6 +53,28 @@ struct _FREERDP_DSP_CONTEXT
+ 	AVAudioResampleContext* rcontext;
+ };
+ 
++static BOOL ffmpeg_codec_is_filtered(enum AVCodecID id, BOOL encoder)
++{
++	if (!encoder)
++		return FALSE;
++
++	switch(id)
++	{
++#if !defined(WITH_DSP_EXPERIMENTAL)
++		case AV_CODEC_ID_MP3:
++		case AV_CODEC_ID_GSM_MS:
++		case AV_CODEC_ID_AAC:
++			return TRUE;
++#endif
++
++		case AV_CODEC_ID_NONE:
++			return TRUE;
++
++		default:
++			return FALSE;
++	}
++}
++
+ static enum AVCodecID ffmpeg_get_avcodec(const AUDIO_FORMAT* format)
+ {
+ 	const char* id;
+@@ -189,7 +211,7 @@ static BOOL ffmpeg_open_context(FREERDP_DSP_CONTEXT* context)
+ 	layout = av_get_default_channel_layout(format->nChannels);
+ 	context->id = ffmpeg_get_avcodec(format);
+ 
+-	if (context->id == AV_CODEC_ID_NONE)
++	if (ffmpeg_codec_is_filtered(context->id, context->encoder))
+ 		goto fail;
+ 
+ 	if (context->encoder)
+@@ -333,7 +355,7 @@ static BOOL ffmpeg_encode_frame(AVCodecContext* context, AVFrame* in,
+ 	{
+ 		const char* err = av_err2str(ret);
+ 		WLog_ERR(TAG, "Error submitting the packet to the encoder %s [%d]",
+-		         err, ret);
++				 err, ret);
+ 		return FALSE;
+ 	}
+ 
+@@ -452,7 +474,7 @@ BOOL freerdp_dsp_ffmpeg_supports_format(const AUDIO_FORMAT* format, BOOL encode)
+ {
+ 	enum AVCodecID id = ffmpeg_get_avcodec(format);
+ 
+-	if (id == AV_CODEC_ID_NONE)
++	if (ffmpeg_codec_is_filtered(id, encode))
+ 		return FALSE;
+ 
+ 	if (encode)
+-- 
+1.8.3.1
+

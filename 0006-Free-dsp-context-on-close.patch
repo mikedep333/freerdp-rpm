@@ -1,0 +1,24 @@
+From 2e801a8425e2096dec48b32fe54f60e5a698c46d Mon Sep 17 00:00:00 2001
+From: Armin Novak <armin.novak@thincast.com>
+Date: Fri, 23 Mar 2018 13:57:22 +0100
+Subject: [PATCH 06/13] Free dsp context on close.
+
+---
+ channels/audin/client/audin_main.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/channels/audin/client/audin_main.c b/channels/audin/client/audin_main.c
+index 32e5364..e2eab06 100644
+--- a/channels/audin/client/audin_main.c
++++ b/channels/audin/client/audin_main.c
+@@ -679,6 +679,7 @@ static UINT audin_plugin_terminated(IWTSPlugin* pPlugin)
+ 		audin->device = NULL;
+ 	}
+ 
++	freerdp_dsp_context_free(audin->dsp_context);
+ 	Stream_Free(audin->data, TRUE);
+ 	free(audin->subsystem);
+ 	free(audin->device_name);
+-- 
+1.8.3.1
+
