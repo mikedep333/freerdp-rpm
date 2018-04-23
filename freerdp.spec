@@ -16,7 +16,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        41%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}.2
+Release:        41%{?shortcommit0:.%{date}git%{shortcommit0}}%{?dist}.3
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -52,7 +52,6 @@ BuildRequires:  libXinerama-devel
 BuildRequires:  libxkbfile-devel
 BuildRequires:  libXrandr-devel
 BuildRequires:  libXv-devel
-%{?_with_openh264:BuildRequires:  openh264-devel}
 %{?_with_x264:BuildRequires:  x264-devel}
 BuildRequires:  pam-devel
 BuildRequires:  xmlto
@@ -61,21 +60,17 @@ BuildRequires:  zlib-devel
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(dbus-glib-1)
 BuildRequires:  pkgconfig(glib-2.0)
-BuildRequires:  pkgconfig(gstreamer-1.0)
-BuildRequires:  pkgconfig(gstreamer-base-1.0)
-BuildRequires:  pkgconfig(gstreamer-app-1.0)
-BuildRequires:  pkgconfig(gstreamer-audio-1.0)
-BuildRequires:  pkgconfig(gstreamer-fft-1.0)
-BuildRequires:  pkgconfig(gstreamer-pbutils-1.0)
-BuildRequires:  pkgconfig(gstreamer-video-1.0)
+BuildRequires:  pkgconfig(gstreamer-0.10)
+BuildRequires:  pkgconfig(gstreamer-base-0.10)
+BuildRequires:  pkgconfig(gstreamer-app-0.10)
+BuildRequires:  pkgconfig(gstreamer-audio-0.10)
+BuildRequires:  pkgconfig(gstreamer-fft-0.10)
+BuildRequires:  pkgconfig(gstreamer-pbutils-0.10)
+BuildRequires:  pkgconfig(gstreamer-video-0.10)
 %{?_with_gss:BuildRequires:  pkgconfig(krb5) >= 1.13}
 BuildRequires:  pkgconfig(libpcsclite)
 BuildRequires:  pkgconfig(libpulse)
-BuildRequires:  pkgconfig(libsystemd)
 BuildRequires:  pkgconfig(openssl)
-BuildRequires:  pkgconfig(wayland-client)
-BuildRequires:  pkgconfig(wayland-scanner)
-BuildRequires:  pkgconfig(xkbcommon)
 
 %{?_with_ffmpeg:
 BuildRequires:  pkgconfig(libavcodec)
@@ -174,8 +169,7 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_FFMPEG=%{?_with_ffmpeg:ON}%{?!_with_ffmpeg:OFF} \
     -DWITH_GSM=ON \
     -DWITH_GSSAPI=%{?_with_gss:ON}%{?!_with_gss:OFF} \
-    -DWITH_GSTREAMER_1_0=ON -DWITH_GSTREAMER_0_10=OFF \
-    -DGSTREAMER_1_0_INCLUDE_DIRS=%{_includedir}/gstreamer-1.0 \
+    -DWITH_GSTREAMER_0_10=ON \
     -DWITH_IPP=OFF \
     -DWITH_JPEG=ON \
     -DWITH_MANPAGES=ON \
@@ -185,7 +179,6 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_PULSE=ON \
     -DWITH_SERVER=ON -DWITH_SERVER_INTERFACE=ON \
     -DWITH_SHADOW_X11=ON -DWITH_SHADOW_MAC=ON \
-    -DWITH_WAYLAND=ON \
     -DWITH_X11=ON \
     -DWITH_X264=%{?_with_x264:ON}%{?!_with_x264:OFF} \
     -DWITH_XCURSOR=ON \
@@ -239,11 +232,9 @@ find %{buildroot} -name "*.a" -delete
 %files
 %{_bindir}/winpr-hash
 %{_bindir}/winpr-makecert
-%{_bindir}/wlfreerdp
 %{_bindir}/xfreerdp
 %{_mandir}/man1/winpr-hash.1.*
 %{_mandir}/man1/winpr-makecert.1.*
-%{_mandir}/man1/wlfreerdp.1.*
 %{_mandir}/man1/xfreerdp.1.*
 
 %files libs
@@ -255,28 +246,23 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/libfreerdp-shadow2.so.*
 %{_libdir}/libfreerdp-shadow-subsystem2.so.*
 %{_libdir}/libfreerdp2.so.*
-%{_libdir}/libuwac0.so.*
 %{_mandir}/man7/wlog.*
 
 %files devel
 %{_includedir}/freerdp2
-%{_includedir}/uwac0
 %{_libdir}/cmake/FreeRDP2
 %{_libdir}/cmake/FreeRDP-Client2
 %{_libdir}/cmake/FreeRDP-Server2
 %{_libdir}/cmake/FreeRDP-Shadow2
-%{_libdir}/cmake/uwac0
 %{_libdir}/libfreerdp-client2.so
 %{_libdir}/libfreerdp-server2.so
 %{_libdir}/libfreerdp-shadow2.so
 %{_libdir}/libfreerdp-shadow-subsystem2.so
 %{_libdir}/libfreerdp2.so
-%{_libdir}/libuwac0.so
 %{_libdir}/pkgconfig/freerdp2.pc
 %{_libdir}/pkgconfig/freerdp-client2.pc
 %{_libdir}/pkgconfig/freerdp-server2.pc
 %{_libdir}/pkgconfig/freerdp-shadow2.pc
-%{_libdir}/pkgconfig/uwac0.pc
 
 %files server
 %{_bindir}/freerdp-shadow-cli
@@ -298,6 +284,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Mon Apr 23 2018 Mike DePaulo (GFDL) - 2:2.0.0-41.20180405gita9ecd6a.3
+- Backport to EL6
+
 * Mon Apr 23 2018 Mike DePaulo (GFDL) - 2:2.0.0-41.20180405gita9ecd6a.2
 - Fix crash by applying 13 patches from FreeRDP upstream merge request #4453
   "Sound channel refactoring", written against a9ecd6a exactly.
