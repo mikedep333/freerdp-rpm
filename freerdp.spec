@@ -25,6 +25,8 @@ URL:            http://www.freerdp.com/
 Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{commit0}/FreeRDP-%{commit0}.tar.gz#/FreeRDP-%{shortcommit0}.tar.gz
 Patch0:         freerdp-aarch64.patch
 
+BuildRequires:  gcc
+BuildRequires:  gcc-c++
 BuildRequires:  alsa-lib-devel
 BuildRequires:  cmake >= 2.8
 BuildRequires:  cups-devel
