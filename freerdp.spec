@@ -66,7 +66,11 @@ BuildRequires:  pkgconfig(gstreamer-video-1.0)
 BuildRequires:  pkgconfig(libpcsclite)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:  pkgconfig(libsystemd)
+%if 0%{?rhel}
 BuildRequires:  pkgconfig(openssl)
+%else
+BuildRequires:  pkgconfig(openssl) >= 1.1.0
+%endif
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-scanner)
 BuildRequires:  pkgconfig(xkbcommon)
