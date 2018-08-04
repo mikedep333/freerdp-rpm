@@ -76,10 +76,11 @@ Requires:       %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:       libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
 
 %description
-The xfreerdp Remote Desktop Protocol (RDP) client from the FreeRDP project.
+The xfreerdp & wlfreerdp Remote Desktop Protocol (RDP) clients from the FreeRDP
+project.
 
-xfreerdp can connect to RDP servers such as Microsoft Windows machines, xrdp and
-VirtualBox.
+xfreerdp & wlfreerdp can connect to RDP servers such as Microsoft Windows
+machines, xrdp and VirtualBox.
 
 %package        libs
 Summary:        Core libraries implementing the RDP protocol
