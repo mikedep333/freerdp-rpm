@@ -1,6 +1,4 @@
-%global commit0 a4f147683db7aa99a6075aeaf7c698bc6ba84d11
-%global date 20180801
-%global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
+%global gittag 2.0.0-rc3
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
 # "--with=x264" or "--with=openh264" to mock/rpmbuild; or by globally setting
@@ -16,13 +14,13 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        43.%{date}.rc3%{dist}
+Release:        44.rc3%{dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
 
-Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{commit0}/FreeRDP-%{commit0}.tar.gz#/FreeRDP-%{shortcommit0}.tar.gz
+Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{gittag}/FreeRDP-%{gittag}.tar.gz
 Patch0:         freerdp-aarch64.patch
 
 BuildRequires:  gcc
@@ -61,11 +59,7 @@ BuildRequires:  pkgconfig(gstreamer-video-1.0)
 BuildRequires:  pkgconfig(libpcsclite)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:  pkgconfig(libsystemd)
-%if 0%{?rhel}
 BuildRequires:  pkgconfig(openssl)
-%else
-BuildRequires:  pkgconfig(openssl) >= 1.1.0
-%endif
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-scanner)
 BuildRequires:  pkgconfig(xkbcommon)
@@ -137,8 +131,7 @@ The %{name}-libwinpr-devel package contains libraries and header files for
 developing applications that use %{name}-libwinpr.
 
 %prep
-%setup -qn FreeRDP-%{commit0}
-%patch0 -p1 -b .aarch64
+%autosetup -p1 -n FreeRDP-%{gittag}
 
 # Rpmlint fixes
 find . -name "*.h" -exec chmod 664 {} \;
@@ -279,6 +272,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Mon Aug 20 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-44.rc3
+- Update SPEC file.
+
 * Sat Aug 04 2018 Mike DePaulo <mikedep333@fedoraproject.org> - 2:2.0.0-43.20180801.rc3
 - Update to 2.0.0-rc3
 
