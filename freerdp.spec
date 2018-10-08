@@ -105,6 +105,8 @@ applications that use %{name}-libs.
 
 %package        server
 Summary:        Server support for %{name}
+Requires:       libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:       %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 
 %description    server
 The %{name}-server package contains servers which can export a desktop via
