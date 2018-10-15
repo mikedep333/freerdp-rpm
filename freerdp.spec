@@ -14,6 +14,10 @@
 # https://github.com/FreeRDP/FreeRDP/issues/4348
 #global _with_gss 1
 
+# Disable server support in RHEL
+# https://bugzilla.redhat.com/show_bug.cgi?id=1639165
+%{!?rhel:%global _with_server 1}
+
 Name:           freerdp
 Version:        2.0.0
 Release:        46.%{date}git%{shortcommit0}%{?dist}
@@ -40,11 +44,11 @@ BuildRequires:  libXi-devel
 BuildRequires:  libXinerama-devel
 BuildRequires:  libxkbfile-devel
 BuildRequires:  libXrandr-devel
-BuildRequires:  libXtst-devel
+%{?_with_server:BuildRequires:  libXtst-devel}
 BuildRequires:  libXv-devel
 %{?_with_openh264:BuildRequires:  openh264-devel}
 %{?_with_x264:BuildRequires:  x264-devel}
-BuildRequires:  pam-devel
+%{?_with_server:BuildRequires:  pam-devel}
 BuildRequires:  xmlto
 BuildRequires:  zlib-devel
 
@@ -106,12 +110,14 @@ Requires:       cmake >= 2.8
 The %{name}-devel package contains libraries and header files for developing
 applications that use %{name}-libs.
 
+%{?_with_server:
 %package        server
 Summary:        Server support for %{name}
 
 %description    server
 The %{name}-server package contains servers which can export a desktop via
 the RDP protocol.
+}
 
 %package -n     libwinpr
 Summary:        Windows Portable Runtime
@@ -160,8 +166,10 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_OPENSSL=ON \
     -DWITH_PCSC=ON \
     -DWITH_PULSE=ON \
-    -DWITH_SERVER=ON -DWITH_SERVER_INTERFACE=ON \
-    -DWITH_SHADOW_X11=ON -DWITH_SHADOW_MAC=ON \
+    -DWITH_SERVER=%{?_with_server:ON}%{?!_with_server:OFF} \
+    -DWITH_SERVER_INTERFACE=%{?_with_server:ON}%{?!_with_server:OFF} \
+    -DWITH_SHADOW_X11=%{?_with_server:ON}%{?!_with_server:OFF} \
+    -DWITH_SHADOW_MAC=%{?_with_server:ON}%{?!_with_server:OFF} \
     -DWITH_WAYLAND=ON \
     -DWITH_X11=ON \
     -DWITH_X264=%{?_with_x264:ON}%{?!_with_x264:OFF} \
@@ -171,7 +179,7 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_XI=ON \
     -DWITH_XINERAMA=ON \
     -DWITH_XRENDER=ON \
-    -DWITH_XTEST=ON \
+    -DWITH_XTEST=%{?_with_server:ON}%{?!_with_server:OFF} \
     -DWITH_XV=ON \
     -DWITH_ZLIB=ON \
 %ifarch x86_64
@@ -228,9 +236,11 @@ find %{buildroot} -name "*.a" -delete
 %doc README ChangeLog
 %{_libdir}/freerdp2/
 %{_libdir}/libfreerdp-client2.so.*
+%{?_with_server:
 %{_libdir}/libfreerdp-server2.so.*
 %{_libdir}/libfreerdp-shadow2.so.*
 %{_libdir}/libfreerdp-shadow-subsystem2.so.*
+}
 %{_libdir}/libfreerdp2.so.*
 %{_libdir}/libuwac0.so.*
 %{_mandir}/man7/wlog.*
@@ -240,24 +250,32 @@ find %{buildroot} -name "*.a" -delete
 %{_includedir}/uwac0
 %{_libdir}/cmake/FreeRDP2
 %{_libdir}/cmake/FreeRDP-Client2
+%{?_with_server:
 %{_libdir}/cmake/FreeRDP-Server2
 %{_libdir}/cmake/FreeRDP-Shadow2
+}
 %{_libdir}/cmake/uwac0
 %{_libdir}/libfreerdp-client2.so
+%{?_with_server:
 %{_libdir}/libfreerdp-server2.so
 %{_libdir}/libfreerdp-shadow2.so
 %{_libdir}/libfreerdp-shadow-subsystem2.so
+}
 %{_libdir}/libfreerdp2.so
 %{_libdir}/libuwac0.so
 %{_libdir}/pkgconfig/freerdp2.pc
 %{_libdir}/pkgconfig/freerdp-client2.pc
+%{?_with_server:
 %{_libdir}/pkgconfig/freerdp-server2.pc
 %{_libdir}/pkgconfig/freerdp-shadow2.pc
+}
 %{_libdir}/pkgconfig/uwac0.pc
 
+%{?_with_server:
 %files server
 %{_bindir}/freerdp-shadow-cli
 %{_mandir}/man1/freerdp-shadow-cli.1.*
+}
 
 %files -n libwinpr
 %license LICENSE
