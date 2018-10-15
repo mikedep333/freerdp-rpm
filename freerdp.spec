@@ -16,7 +16,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        45.%{date}git%{shortcommit0}%{?dist}
+Release:        45.%{date}git%{shortcommit0}%{?dist}.1
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -277,6 +277,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Mon Oct 15 2018 Mike DePaulo (GFDL) - 2:2.0.0-45.20181008git00af869.1
+- Add support for building on EPEL7
+
 * Mon Oct 15 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-45.20181008git00af869
 - Update to last snapshot post 2.0.0-rc3.
 
