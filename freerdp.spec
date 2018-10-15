@@ -1,4 +1,6 @@
-%global gittag 2.0.0-rc3
+%global commit0 00af869cd3261dcd773664cce93ac46096df286f
+%global date 20181008
+%global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
 # "--with=x264" or "--with=openh264" to mock/rpmbuild; or by globally setting
@@ -14,13 +16,13 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        44.rc3%{dist}
+Release:        45.%{date}git%{shortcommit0}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
 
-Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{gittag}/FreeRDP-%{gittag}.tar.gz
+Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{commit0}/FreeRDP-%{commit0}.tar.gz#/FreeRDP-%{shortcommit0}.tar.gz
 Patch0:         freerdp-aarch64.patch
 
 BuildRequires:  gcc
@@ -65,7 +67,7 @@ BuildRequires:  pkgconfig(wayland-scanner)
 BuildRequires:  pkgconfig(xkbcommon)
 
 %{?_with_ffmpeg:
-BuildRequires:  pkgconfig(libavcodec)
+BuildRequires:  pkgconfig(libavcodec) >= 57.48.101
 BuildRequires:  pkgconfig(libavutil)
 }
 
@@ -131,7 +133,7 @@ The %{name}-libwinpr-devel package contains libraries and header files for
 developing applications that use %{name}-libwinpr.
 
 %prep
-%autosetup -p1 -n FreeRDP-%{gittag}
+%autosetup -p1 -n FreeRDP-%{commit0}
 
 # Rpmlint fixes
 find . -name "*.h" -exec chmod 664 {} \;
@@ -257,7 +259,6 @@ find %{buildroot} -name "*.a" -delete
 %{_mandir}/man1/freerdp-shadow-cli.1.*
 
 %files -n libwinpr
-%{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc README ChangeLog
 %{_libdir}/libwinpr2.so.*
@@ -272,6 +273,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Mon Oct 15 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-45.20181008git00af869
+- Update to last snapshot post 2.0.0-rc3.
+
 * Mon Aug 20 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-44.rc3
 - Update SPEC file.
 
