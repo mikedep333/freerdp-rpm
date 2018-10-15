@@ -16,7 +16,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        45.%{date}git%{shortcommit0}%{?dist}
+Release:        46.%{date}git%{shortcommit0}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -40,6 +40,7 @@ BuildRequires:  libXi-devel
 BuildRequires:  libXinerama-devel
 BuildRequires:  libxkbfile-devel
 BuildRequires:  libXrandr-devel
+BuildRequires:  libXtst-devel
 BuildRequires:  libXv-devel
 %{?_with_openh264:BuildRequires:  openh264-devel}
 %{?_with_x264:BuildRequires:  x264-devel}
@@ -170,7 +171,7 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_XI=ON \
     -DWITH_XINERAMA=ON \
     -DWITH_XRENDER=ON \
-    -DWITH_XTEST=OFF \
+    -DWITH_XTEST=ON \
     -DWITH_XV=ON \
     -DWITH_ZLIB=ON \
 %ifarch x86_64
@@ -273,6 +274,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Mon Oct 15 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-46.20181008git00af869
+- Enable Xtest option (#1559606).
+
 * Mon Oct 15 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-45.20181008git00af869
 - Update to last snapshot post 2.0.0-rc3.
 
