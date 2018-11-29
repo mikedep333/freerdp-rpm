@@ -47,6 +47,7 @@ BuildRequires:  libXv-devel
 BuildRequires:  pam-devel
 BuildRequires:  xmlto
 BuildRequires:  zlib-devel
+BuildRequires:  multilib-rpm-config
 
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(dbus-glib-1)
@@ -206,6 +207,8 @@ popd
 %make_install COMPONENT=tools
 
 find %{buildroot} -name "*.a" -delete
+
+%multilib_fix_c_header --file %{_includedir}/freerdp2/freerdp/build-config.h
 
 %post libs -p /sbin/ldconfig
 
