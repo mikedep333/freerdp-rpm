@@ -1,6 +1,4 @@
-%global commit0 00af869cd3261dcd773664cce93ac46096df286f
-%global date 20181008
-%global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
+%global gittag 2.0.0-rc4
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
 # "--with=x264" or "--with=openh264" to mock/rpmbuild; or by globally setting
@@ -20,13 +18,13 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        46.%{date}git%{shortcommit0}%{?dist}
+Release:        47.rc4%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
 
-Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{commit0}/FreeRDP-%{commit0}.tar.gz#/FreeRDP-%{shortcommit0}.tar.gz
+Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{gittag}/FreeRDP-%{gittag}.tar.gz
 
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
@@ -142,7 +140,7 @@ The %{name}-libwinpr-devel package contains libraries and header files for
 developing applications that use %{name}-libwinpr.
 
 %prep
-%autosetup -p1 -n FreeRDP-%{commit0}
+%autosetup -p1 -n FreeRDP-%{gittag}
 
 # Rpmlint fixes
 find . -name "*.h" -exec chmod 664 {} \;
@@ -296,6 +294,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Thu Nov 29 2018 Ondrej Holy <oholy@redhat.com> - 2:2.0.0-47.rc4
+- Update to 2.0.0-rc4
+
 * Mon Oct 15 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-46.20181008git00af869
 - Enable Xtest option (#1559606).
 
