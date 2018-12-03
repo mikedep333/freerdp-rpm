@@ -122,7 +122,7 @@ the RDP protocol.
 %package -n     libwinpr
 Summary:        Windows Portable Runtime
 Provides:       %{name}-libwinpr = %{?epoch}:%{version}-%{release}
-Obsoletes:      %{name}-libwinpr < %{?epoch}:%{version}-%{release}
+Obsoletes:      %{name}-libwinpr < 1:1.2.0
 
 %description -n libwinpr
 WinPR provides API compatibility for applications targeting non-Windows
