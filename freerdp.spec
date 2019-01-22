@@ -215,13 +215,9 @@ find %{buildroot} -name "*.a" -delete
 
 %multilib_fix_c_header --file %{_includedir}/freerdp2/freerdp/build-config.h
 
-%post libs -p /sbin/ldconfig
+%ldconfig_scriptlets libs
 
-%postun libs -p /sbin/ldconfig
-
-%post -n libwinpr -p /sbin/ldconfig
-
-%postun -n libwinpr -p /sbin/ldconfig
+%ldconfig_scriptlets -n libwinpr
 
 %files
 %{_bindir}/winpr-hash
