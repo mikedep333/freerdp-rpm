@@ -1,4 +1,6 @@
-%global gittag 2.0.0-rc4
+%global commit0 ce386c8555bdc4d716e7f54f1f40757ebc533c87
+%global date 20190228
+%global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
 # "--with=x264" or "--with=openh264" to mock/rpmbuild; or by globally setting
@@ -18,13 +20,13 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        47.rc4%{?dist}.1
+Release:        48.%{date}git%{shortcommit0}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
 
-Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{gittag}/FreeRDP-%{gittag}.tar.gz
+Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{commit0}/FreeRDP-%{commit0}.tar.gz#/FreeRDP-%{shortcommit0}.tar.gz
 
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
@@ -140,7 +142,7 @@ The %{name}-libwinpr-devel package contains libraries and header files for
 developing applications that use %{name}-libwinpr.
 
 %prep
-%autosetup -p1 -n FreeRDP-%{gittag}
+%autosetup -p1 -n FreeRDP-%{commit0}
 
 # Rpmlint fixes
 find . -name "*.h" -exec chmod 664 {} \;
@@ -290,6 +292,10 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Thu Feb 28 2019 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-48.20190228gitce386c8
+- Update to latest snapshot post rc4.
+- CVE-2018-1000852 (#1661642).
+
 * Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2:2.0.0-47.rc4.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
