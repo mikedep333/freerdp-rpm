@@ -1,5 +1,5 @@
-%global commit0 ce386c8555bdc4d716e7f54f1f40757ebc533c87
-%global date 20190228
+%global commit0 435872b417481955e7ef788312e32b344c36515e
+%global date 20190304
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
@@ -20,7 +20,7 @@
 
 Name:           freerdp
 Version:        2.0.0
-Release:        48.%{date}git%{shortcommit0}%{?dist}
+Release:        49.%{date}git%{shortcommit0}%{?dist}
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
@@ -292,6 +292,9 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
+* Wed Mar 06 2019 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-49.20190304git435872b
+- Fix for GFX color depth (Windows 10).
+
 * Thu Feb 28 2019 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-48.20190228gitce386c8
 - Update to latest snapshot post rc4.
 - CVE-2018-1000852 (#1661642).
