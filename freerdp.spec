@@ -296,7 +296,7 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
-* Mon Mar 22 2019 Mike DePaulo (GFDL) - 2:2.0.0-49.20190304git435872b.1
+* Fri Mar 22 2019 Mike DePaulo (GFDL) - 2:2.0.0-49.20190304git435872b.1
 - Add support for building on EPEL7
 
 * Wed Mar 06 2019 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-49.20190304git435872b
