@@ -1,5 +1,5 @@
-%global commit0 00af869cd3261dcd773664cce93ac46096df286f
-%global date 20181008
+%global commit0 435872b417481955e7ef788312e32b344c36515e
+%global date 20190304
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 
 # Can be rebuilt with FFmpeg/H264 support enabled by passing "--with=ffmpeg",
@@ -14,16 +14,19 @@
 # https://github.com/FreeRDP/FreeRDP/issues/4348
 #global _with_gss 1
 
+# Disable server support in RHEL
+# https://bugzilla.redhat.com/show_bug.cgi?id=1639165
+%{!?rhel:%global _with_server 1}
+
 Name:           freerdp
 Version:        2.0.0
-Release:        45.%{date}git%{shortcommit0}%{?dist}.1
+Release:        49.%{date}git%{shortcommit0}%{?dist}.1
 Epoch:          2
 Summary:        Free implementation of the Remote Desktop Protocol (RDP)
 License:        ASL 2.0
 URL:            http://www.freerdp.com/
 
 Source0:        https://github.com/FreeRDP/FreeRDP/archive/%{commit0}/FreeRDP-%{commit0}.tar.gz#/FreeRDP-%{shortcommit0}.tar.gz
-Patch0:         freerdp-aarch64.patch
 
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
@@ -40,12 +43,14 @@ BuildRequires:  libXi-devel
 BuildRequires:  libXinerama-devel
 BuildRequires:  libxkbfile-devel
 BuildRequires:  libXrandr-devel
+%{?_with_server:BuildRequires:  libXtst-devel}
 BuildRequires:  libXv-devel
 %{?_with_openh264:BuildRequires:  openh264-devel}
 %{?_with_x264:BuildRequires:  x264-devel}
-BuildRequires:  pam-devel
+%{?_with_server:BuildRequires:  pam-devel}
 BuildRequires:  xmlto
 BuildRequires:  zlib-devel
+BuildRequires:  multilib-rpm-config
 
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(dbus-glib-1)
@@ -109,17 +114,21 @@ Requires:       cmake >= 2.8
 The %{name}-devel package contains libraries and header files for developing
 applications that use %{name}-libs.
 
+%{?_with_server:
 %package        server
 Summary:        Server support for %{name}
+Requires:       libwinpr%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:       %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 
 %description    server
 The %{name}-server package contains servers which can export a desktop via
 the RDP protocol.
+}
 
 %package -n     libwinpr
 Summary:        Windows Portable Runtime
 Provides:       %{name}-libwinpr = %{?epoch}:%{version}-%{release}
-Obsoletes:      %{name}-libwinpr < %{?epoch}:%{version}-%{release}
+Obsoletes:      %{name}-libwinpr < 1:1.2.0
 
 %description -n libwinpr
 WinPR provides API compatibility for applications targeting non-Windows
@@ -163,8 +172,10 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_OPENSSL=ON \
     -DWITH_PCSC=ON \
     -DWITH_PULSE=ON \
-    -DWITH_SERVER=ON -DWITH_SERVER_INTERFACE=ON \
-    -DWITH_SHADOW_X11=ON -DWITH_SHADOW_MAC=ON \
+    -DWITH_SERVER=%{?_with_server:ON}%{?!_with_server:OFF} \
+    -DWITH_SERVER_INTERFACE=%{?_with_server:ON}%{?!_with_server:OFF} \
+    -DWITH_SHADOW_X11=%{?_with_server:ON}%{?!_with_server:OFF} \
+    -DWITH_SHADOW_MAC=%{?_with_server:ON}%{?!_with_server:OFF} \
     -DWITH_WAYLAND=ON \
     -DWITH_X11=ON \
     -DWITH_X264=%{?_with_x264:ON}%{?!_with_x264:OFF} \
@@ -174,7 +185,7 @@ find . -name "*.c" -exec chmod 664 {} \;
     -DWITH_XI=ON \
     -DWITH_XINERAMA=ON \
     -DWITH_XRENDER=ON \
-    -DWITH_XTEST=OFF \
+    -DWITH_XTEST=%{?_with_server:ON}%{?!_with_server:OFF} \
     -DWITH_XV=ON \
     -DWITH_ZLIB=ON \
 %ifarch x86_64
@@ -208,13 +219,11 @@ popd
 
 find %{buildroot} -name "*.a" -delete
 
-%post libs -p /sbin/ldconfig
+%multilib_fix_c_header --file %{_includedir}/freerdp2/freerdp/build-config.h
 
-%postun libs -p /sbin/ldconfig
+%ldconfig_scriptlets libs
 
-%post -n libwinpr -p /sbin/ldconfig
-
-%postun -n libwinpr -p /sbin/ldconfig
+%ldconfig_scriptlets -n libwinpr
 
 %files
 %{_bindir}/winpr-hash
@@ -231,9 +240,11 @@ find %{buildroot} -name "*.a" -delete
 %doc README ChangeLog
 %{_libdir}/freerdp2/
 %{_libdir}/libfreerdp-client2.so.*
+%{?_with_server:
 %{_libdir}/libfreerdp-server2.so.*
 %{_libdir}/libfreerdp-shadow2.so.*
 %{_libdir}/libfreerdp-shadow-subsystem2.so.*
+}
 %{_libdir}/libfreerdp2.so.*
 %{_libdir}/libuwac0.so.*
 %{_mandir}/man7/wlog.*
@@ -243,24 +254,32 @@ find %{buildroot} -name "*.a" -delete
 %{_includedir}/uwac0
 %{_libdir}/cmake/FreeRDP2
 %{_libdir}/cmake/FreeRDP-Client2
+%{?_with_server:
 %{_libdir}/cmake/FreeRDP-Server2
 %{_libdir}/cmake/FreeRDP-Shadow2
+}
 %{_libdir}/cmake/uwac0
 %{_libdir}/libfreerdp-client2.so
+%{?_with_server:
 %{_libdir}/libfreerdp-server2.so
 %{_libdir}/libfreerdp-shadow2.so
 %{_libdir}/libfreerdp-shadow-subsystem2.so
+}
 %{_libdir}/libfreerdp2.so
 %{_libdir}/libuwac0.so
 %{_libdir}/pkgconfig/freerdp2.pc
 %{_libdir}/pkgconfig/freerdp-client2.pc
+%{?_with_server:
 %{_libdir}/pkgconfig/freerdp-server2.pc
 %{_libdir}/pkgconfig/freerdp-shadow2.pc
+}
 %{_libdir}/pkgconfig/uwac0.pc
 
+%{?_with_server:
 %files server
 %{_bindir}/freerdp-shadow-cli
 %{_mandir}/man1/freerdp-shadow-cli.1.*
+}
 
 %files -n libwinpr
 %license LICENSE
@@ -277,8 +296,24 @@ find %{buildroot} -name "*.a" -delete
 %{_libdir}/pkgconfig/winpr-tools2.pc
 
 %changelog
-* Mon Oct 15 2018 Mike DePaulo (GFDL) - 2:2.0.0-45.20181008git00af869.1
+* Fri Mar 22 2019 Mike DePaulo (GFDL) - 2:2.0.0-49.20190304git435872b.1
 - Add support for building on EPEL7
+
+* Wed Mar 06 2019 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-49.20190304git435872b
+- Fix for GFX color depth (Windows 10).
+
+* Thu Feb 28 2019 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-48.20190228gitce386c8
+- Update to latest snapshot post rc4.
+- CVE-2018-1000852 (#1661642).
+
+* Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2:2.0.0-47.rc4.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
+* Thu Nov 29 2018 Ondrej Holy <oholy@redhat.com> - 2:2.0.0-47.rc4
+- Update to 2.0.0-rc4
+
+* Mon Oct 15 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-46.20181008git00af869
+- Enable Xtest option (#1559606).
 
 * Mon Oct 15 2018 Simone Caronni <negativo17@gmail.com> - 2:2.0.0-45.20181008git00af869
 - Update to last snapshot post 2.0.0-rc3.
